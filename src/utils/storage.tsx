@@ -22,8 +22,10 @@ const API_BASE_URL = getApiBaseUrl();
 // Helper function for API calls
 async function apiCall(endpoint: string, options: RequestInit = {}) {
   try {
-    const url = `${API_BASE_URL}${endpoint}`;
-    console.log(`🌐 API Call: ${options.method || 'GET'} ${url}`);
+    // Ensure endpoint starts with /
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${API_BASE_URL}${cleanEndpoint}`;
+    console.log(`🌐 API Call: ${options.method || 'GET'} ${url}`, { API_BASE_URL, endpoint, cleanEndpoint });
     
     const response = await fetch(url, {
       ...options,
