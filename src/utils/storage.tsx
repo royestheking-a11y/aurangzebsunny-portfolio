@@ -1,10 +1,19 @@
 // MongoDB-based data storage via API
 
-// Auto-detect API URL: use VITE_API_URL if set, otherwise use current origin in production or localhost in development
+// Auto-detect API URL: use VITE_API_URL if set and valid, otherwise use current origin in production or localhost in development
 const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  const viteApiUrl = import.meta.env.VITE_API_URL;
+  
+  // If VITE_API_URL is set, validate it's a proper URL
+  if (viteApiUrl) {
+    // Check if it's a valid URL (starts with http:// or https://)
+    if (typeof viteApiUrl === 'string' && (viteApiUrl.startsWith('http://') || viteApiUrl.startsWith('https://'))) {
+      return viteApiUrl.endsWith('/api') ? viteApiUrl : `${viteApiUrl.replace(/\/$/, '')}/api`;
+    }
+    // If VITE_API_URL is set but invalid (like 'auraportfolio09'), ignore it and use fallback
+    console.warn('⚠️ VITE_API_URL is set to invalid value:', viteApiUrl, '- using auto-detection instead');
   }
+  
   // In production (any deployed environment), use the current origin
   if (typeof window !== 'undefined') {
     const origin = window.location.origin;
