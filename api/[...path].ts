@@ -39,8 +39,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (apiIndex !== -1 && apiIndex < parts.length - 1) {
         pathParts = parts.slice(apiIndex + 1);
       } else if (parts.length > 0) {
-        // If no 'api' found, assume all parts are the path
-        pathParts = parts;
+        // If no 'api' found, skip database names and get the actual resource
+        const dbNames = ['auraportfolio', 'auraportfolio09'];
+        if (dbNames.includes(parts[0]?.toLowerCase()) && parts.length > 1) {
+          pathParts = parts.slice(1);
+        } else {
+          pathParts = parts;
+        }
       }
     }
     
