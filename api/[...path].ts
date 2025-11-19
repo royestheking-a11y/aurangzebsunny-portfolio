@@ -3,7 +3,12 @@ import { connectToDatabase, getDatabase } from './_helpers/db';
 import { handleCors, setCorsHeaders } from './_helpers/cors';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (handleCors(req, res)) return;
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res);
+    return res.status(200).end();
+  }
+  
   setCorsHeaders(res);
 
   try {
@@ -312,8 +317,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(items || []);
       }
       if (method === 'POST') {
+        // Handle both direct POST and POST with body
         const item = {
-          ...req.body,
+          ...(typeof req.body === 'object' ? req.body : {}),
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           createdAt: new Date().toISOString(),
         };
@@ -334,6 +340,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
+      // If method doesn't match, return 405
+      return res.status(405).json({ error: 'Method not allowed' });
     }
 
     // Settings
@@ -368,8 +376,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(items || []);
       }
       if (method === 'POST') {
+        // Handle both { email: "..." } and direct email string
+        const email = typeof req.body === 'string' ? req.body : (req.body?.email || req.body);
         const item = {
-          email: req.body.email || req.body,
+          email: email,
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           subscribedAt: new Date().toISOString(),
         };
@@ -380,6 +390,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
+      // If method doesn't match, return 405
+      return res.status(405).json({ error: 'Method not allowed' });
     }
 
     // Contact
