@@ -415,7 +415,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 404 for unknown routes
-    res.status(404).json({ error: 'Not found' });
+    console.log('404 - Route not found:', { resource, id, pathParts, url: req.url, query: req.query });
+    res.status(404).json({ error: 'Not found', path: pathParts, resource });
   } catch (error: any) {
     console.error('API Error:', error);
     res.status(500).json({ error: error.message });
