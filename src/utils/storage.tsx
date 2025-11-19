@@ -85,7 +85,8 @@ export const storage = {
   // Projects
   getProjects: async () => {
     try {
-      return await apiCall('/projects');
+      const result = await apiCall('/projects');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting projects:', error);
       return [];
@@ -115,7 +116,8 @@ export const storage = {
   // Posts
   getPosts: async () => {
     try {
-      return await apiCall('/posts');
+      const result = await apiCall('/posts');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting posts:', error);
       return [];
@@ -145,7 +147,8 @@ export const storage = {
   // Videos
   getVideos: async () => {
     try {
-      return await apiCall('/videos');
+      const result = await apiCall('/videos');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting videos:', error);
       return [];
@@ -175,7 +178,8 @@ export const storage = {
   // Certificates
   getCertificates: async () => {
     try {
-      return await apiCall('/certificates');
+      const result = await apiCall('/certificates');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting certificates:', error);
       return [];
@@ -198,7 +202,8 @@ export const storage = {
   // Jobs
   getJobs: async () => {
     try {
-      return await apiCall('/jobs');
+      const result = await apiCall('/jobs');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting jobs:', error);
       return [];
@@ -228,7 +233,8 @@ export const storage = {
   // Reviews
   getReviews: async () => {
     try {
-      return await apiCall('/reviews');
+      const result = await apiCall('/reviews');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting reviews:', error);
       return [];
@@ -251,7 +257,8 @@ export const storage = {
   // Q&A
   getQAs: async () => {
     try {
-      return await apiCall('/qas');
+      const result = await apiCall('/qas');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting QAs:', error);
       return [];
@@ -281,7 +288,8 @@ export const storage = {
   // Messages
   getMessages: async () => {
     try {
-      return await apiCall('/messages');
+      const result = await apiCall('/messages');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting messages:', error);
       return [];
@@ -355,7 +363,8 @@ export const storage = {
   // Newsletter Subscriptions
   getNewsletterSubscriptions: async () => {
     try {
-      return await apiCall('/newsletter');
+      const result = await apiCall('/newsletter');
+      return Array.isArray(result) ? result : [];
     } catch (error) {
       console.error('Error getting newsletter subscriptions:', error);
       return [];

@@ -11,46 +11,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const db = getDatabase();
     
     const method = req.method;
-    
-    // Get path from query parameter (Vercel catch-all route)
-    // In Vercel, catch-all routes pass path segments as req.query.path array
+    // Get path from URL - handle both direct calls and catch-all routes
+    const url = req.url || '';
     let pathParts: string[] = [];
     
-    if (req.query.path) {
-      if (Array.isArray(req.query.path)) {
-        pathParts = req.query.path as string[];
-      } else if (typeof req.query.path === 'string') {
-        pathParts = [req.query.path];
+    // Try to get from query parameter (catch-all route)
+    if (req.query.path && Array.isArray(req.query.path)) {
+      pathParts = req.query.path as string[];
+    } else if (req.query.path) {
+      pathParts = [req.query.path as string];
+    } else {
+      // Fallback: parse from URL
+      const path = url.split('?')[0];
+      pathParts = path.split('/').filter(Boolean);
+      if (pathParts[0] === 'api') {
+        pathParts.shift();
       }
     }
     
-    // Fallback: parse from URL if path is empty or not found
-    if (pathParts.length === 0) {
-      const url = req.url || '';
-      const urlPath = url.split('?')[0];
-      const parts = urlPath.split('/').filter(Boolean);
-      // Find 'api' and get everything after it
-      const apiIndex = parts.indexOf('api');
-      if (apiIndex !== -1 && apiIndex < parts.length - 1) {
-        pathParts = parts.slice(apiIndex + 1);
-      } else if (parts.length > 0) {
-        // If no 'api' found, assume all parts are the path
-        pathParts = parts;
-      }
-    }
-    
-    const resource = pathParts[0] || '';
+    const resource = pathParts[0];
     const id = pathParts[1];
-    
-    // Debug logging
-    console.log('API Request:', { 
-      method, 
-      pathParts, 
-      resource, 
-      id, 
-      url: req.url,
-      query: req.query 
-    });
 
     // Health check
     if (resource === 'health' && method === 'GET') {
