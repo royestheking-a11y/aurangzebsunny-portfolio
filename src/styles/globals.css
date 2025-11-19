@@ -1,0 +1,229 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --background: #F5F5F2;
+  --foreground: #2E2E2E;
+  --card: #ffffff;
+  --card-foreground: #2E2E2E;
+  --popover: #ffffff;
+  --popover-foreground: #2E2E2E;
+  --primary: #6C00A2;
+  --primary-foreground: #ffffff;
+  --secondary: #9C6B30;
+  --secondary-foreground: #ffffff;
+  --muted: #EDEAE4;
+  --muted-foreground: #6F6F6F;
+  --accent: #9C6B30;
+  --accent-foreground: #ffffff;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: transparent;
+  --input-background: #ffffff;
+  --switch-background: #cbced4;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #6C00A2;
+  --chart-1: #6C00A2;
+  --chart-2: #9C6B30;
+  --chart-3: #CBBBA0;
+  --chart-4: #BFAF95;
+  --chart-5: #D8D2C4;
+  --radius: 0.625rem;
+  --sidebar: #F5F5F2;
+  --sidebar-foreground: #2E2E2E;
+  --sidebar-primary: #6C00A2;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #EDEAE4;
+  --sidebar-accent-foreground: #2E2E2E;
+  --sidebar-border: #D8D2C4;
+  --sidebar-ring: #6C00A2;
+}
+
+.dark {
+  --background: #1A1A1A;
+  --foreground: #F5F5F2;
+  --card: #242424;
+  --card-foreground: #F5F5F2;
+  --popover: #242424;
+  --popover-foreground: #F5F5F2;
+  --primary: #8B2FC9;
+  --primary-foreground: #ffffff;
+  --secondary: #B8824D;
+  --secondary-foreground: #ffffff;
+  --muted: #2E2E2E;
+  --muted-foreground: #A0A0A0;
+  --accent: #B8824D;
+  --accent-foreground: #ffffff;
+  --destructive: #d4183d;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: #2E2E2E;
+  --ring: #8B2FC9;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: #8B2FC9;
+  --chart-2: #B8824D;
+  --chart-3: #3E3E3E;
+  --chart-4: #4E4E4E;
+  --chart-5: #5E5E5E;
+  --sidebar: #1A1A1A;
+  --sidebar-foreground: #F5F5F2;
+  --sidebar-primary: #8B2FC9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2E2E2E;
+  --sidebar-accent-foreground: #F5F5F2;
+  --sidebar-border: #3E3E3E;
+  --sidebar-ring: #8B2FC9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+  scroll-behavior: smooth;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Custom utilities for portfolio */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass-effect {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #6C00A2 0%, #9C6B30 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hover-glow {
+  transition: all 0.3s ease-in-out;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(108, 0, 162, 0.4);
+  transform: translateY(-2px);
+}
