@@ -10,13 +10,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await connectToDatabase();
     const db = getDatabase();
     
-    const path = req.url?.split('?')[0] || '';
     const method = req.method;
-    const pathParts = path.split('/').filter(Boolean);
+    // Get path from URL - handle both direct calls and catch-all routes
+    const url = req.url || '';
+    let pathParts: string[] = [];
     
-    // Remove 'api' from path if present
-    if (pathParts[0] === 'api') {
-      pathParts.shift();
+    // Try to get from query parameter (catch-all route)
+    if (req.query.path && Array.isArray(req.query.path)) {
+      pathParts = req.query.path as string[];
+    } else if (req.query.path) {
+      pathParts = [req.query.path as string];
+    } else {
+      // Fallback: parse from URL
+      const path = url.split('?')[0];
+      pathParts = path.split('/').filter(Boolean);
+      if (pathParts[0] === 'api') {
+        pathParts.shift();
+      }
     }
     
     const resource = pathParts[0];
@@ -367,7 +377,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Aura Assistant
-    if (pathParts[0] === 'aura' && pathParts[1] === 'submit' && method === 'POST') {
+    if (resource === 'aura' && pathParts[1] === 'submit' && method === 'POST') {
       const collection = db.collection('messages');
       const message = {
         name: req.body.name,
