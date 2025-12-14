@@ -32,8 +32,8 @@ export function Projects() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl sm:text-5xl mb-6">
-            Recent <span className="gradient-text">Works</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl mb-6 font-bold">
+            Web Application & <span className="gradient-text">Website Development Projects</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Explore my latest projects across design, development, and marketing
@@ -46,11 +46,10 @@ export function Projects() {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2 rounded-full transition-all uppercase tracking-wider text-sm ${
-                selectedCategory === category
+              className={`px-6 py-2 rounded-full transition-all uppercase tracking-wider text-sm ${selectedCategory === category
                   ? 'bg-primary text-primary-foreground shadow-lg'
                   : 'bg-card border border-border hover-glow'
-              }`}
+                }`}
             >
               {category}
             </button>

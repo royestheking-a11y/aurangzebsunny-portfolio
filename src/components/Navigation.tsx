@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Download, Moon, Sun, Lock as LockIcon } from 'lucide-react';
+import { Menu, X, Download, Moon, Sun } from 'lucide-react';
 import { Button } from './ui/button';
 import { storage } from '../utils/storage';
 import { AnimatePresence, motion } from 'motion/react';
@@ -108,14 +108,7 @@ export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
               Resume
             </Button>
 
-            <button
-              onClick={() => window.location.hash = 'admin'}
-              className="p-2 rounded-full glass-effect hover-glow transition-all text-foreground/80 hover:text-primary"
-              aria-label="Admin Login"
-              title="Admin Access"
-            >
-              <LockIcon className="w-5 h-5" />
-            </button>
+
 
             <button
               onClick={toggleDarkMode}

@@ -137,7 +137,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <LayoutDashboard className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-tight tracking-wide">Admin<br /><span className="text-primary font-light">Console</span></h1>
+              <h1 className="font-bold text-sm leading-tight tracking-wide">Custom Software & <br /><span className="text-primary font-light">Admin Dashboard Development</span></h1>
             </div>
           </div>
 
@@ -172,7 +172,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
                 <LayoutDashboard className="w-4 h-4 text-white" />
               </div>
-              <h1 className="font-bold text-lg">Admin<span className="text-primary font-light">Console</span></h1>
+              <h1 className="font-bold text-sm">Custom Software & <span className="text-primary font-light">Admin Dashboard</span></h1>
             </div>
             <Button size="icon" variant="ghost" onClick={() => setIsMobileMenuOpen(false)}>
               <X className="w-6 h-6" />

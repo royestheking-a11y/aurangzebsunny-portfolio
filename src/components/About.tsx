@@ -90,9 +90,9 @@ export function About() {
                 className="relative"
               >
                 <div className="w-52 h-52 rounded-full overflow-hidden border-4 border-primary/30 shadow-2xl hover-glow relative">
-                  <img 
-                    src={profileImage} 
-                    alt="Aurangzeb Sunny" 
+                  <img
+                    src={profileImage}
+                    alt="Aurangzeb Sunny"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-accent/20 pointer-events-none"></div>
@@ -100,9 +100,9 @@ export function About() {
               </motion.div>
             </div>
           )}
-          
-          <h2 className="text-5xl sm:text-6xl mb-6">
-            Meet <span className="gradient-text">Aurangzeb Sunny</span>
+
+          <h2 className="text-4xl sm:text-5xl md:text-6xl mb-6 font-bold">
+            Professional MERN Stack Developer & <span className="gradient-text">UI/UX Designer</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             I'm a passionate UI/UX Designer, Full-Stack Developer, and Digital Marketing Specialist.
@@ -215,7 +215,7 @@ export function About() {
                   <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${skill.gradient} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow`}>
                     <skill.icon className="w-6 h-6 text-white" />
                   </div>
-                  
+
                   <span className="text-sm text-center group-hover:text-primary transition-colors">
                     {skill.name}
                   </span>

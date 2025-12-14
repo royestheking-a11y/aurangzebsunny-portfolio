@@ -114,9 +114,7 @@ export function Hero() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl sm:text-6xl lg:text-7xl mb-8 text-foreground leading-tight">
-            Design With Purpose,
-            <br />
-            <span className="gradient-text">Develop With Passion.</span>
+            Best Full Stack Web Developer in Bangladesh
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
