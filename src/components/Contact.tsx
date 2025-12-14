@@ -4,7 +4,7 @@ import { Send, Mail, Phone, MapPin, Loader2, MessageSquare, CheckCircle2, Calend
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { storage } from '../utils/storage';
 
 export function Contact() {
@@ -79,7 +79,7 @@ export function Contact() {
               <span className="text-sm uppercase tracking-wider">Let's Connect</span>
             </span>
           </motion.div>
-          
+
           <h2 className="text-4xl sm:text-5xl mb-6">
             Let's Create Something
             <br />
@@ -134,7 +134,7 @@ export function Contact() {
               </h3>
 
               <motion.a
-                href="mailto:contact@aurangzeb.com"
+                href="mailto:aurangzebsunnyy@gmail.com"
                 whileHover={{ x: 8 }}
                 className="flex items-center gap-4 p-5 glass-card rounded-xl border border-border hover:border-primary/40 transition-all group"
               >
@@ -143,12 +143,12 @@ export function Contact() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Email</p>
-                  <p className="group-hover:text-primary transition-colors">contact@aurangzeb.com</p>
+                  <p className="group-hover:text-primary transition-colors">aurangzebsunnyy@gmail.com</p>
                 </div>
               </motion.a>
 
               <motion.a
-                href="tel:+1234567890"
+                href="tel:+8801625691878"
                 whileHover={{ x: 8 }}
                 className="flex items-center gap-4 p-5 glass-card rounded-xl border border-border hover:border-accent/40 transition-all group"
               >
@@ -157,12 +157,12 @@ export function Contact() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Phone</p>
-                  <p className="group-hover:text-accent transition-colors">+1 (234) 567-890</p>
+                  <p className="group-hover:text-accent transition-colors">+880 (162)5691-878</p>
                 </div>
               </motion.a>
 
               <motion.a
-                href="https://wa.me/1234567890"
+                href="https://wa.link/nww3a3"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ x: 8 }}
@@ -220,7 +220,7 @@ export function Contact() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full h-12 bg-background/50 border-2 focus:border-primary transition-all"
+                      className="w-full h-12 bg-secondary/30 border-border focus:border-primary transition-all"
                     />
                   </div>
 
@@ -235,7 +235,7 @@ export function Contact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full h-12 bg-background/50 border-2 focus:border-primary transition-all"
+                      className="w-full h-12 bg-secondary/30 border-border focus:border-primary transition-all"
                     />
                   </div>
                 </div>
@@ -251,7 +251,7 @@ export function Contact() {
                       type="tel"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full h-12 bg-background/50 border-2 focus:border-primary transition-all"
+                      className="w-full h-12 bg-secondary/30 border-border focus:border-primary transition-all"
                     />
                   </div>
 
@@ -266,7 +266,7 @@ export function Contact() {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full h-12 bg-background/50 border-2 focus:border-primary transition-all"
+                      className="w-full h-12 bg-secondary/30 border-border focus:border-primary transition-all"
                     />
                   </div>
                 </div>
@@ -281,7 +281,7 @@ export function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full min-h-[180px] bg-background/50 border-2 focus:border-primary transition-all resize-none"
+                    className="w-full min-h-[180px] bg-secondary/30 border-border focus:border-primary transition-all resize-none"
                     placeholder="Tell me about your project, goals, and how I can help..."
                   />
                 </div>

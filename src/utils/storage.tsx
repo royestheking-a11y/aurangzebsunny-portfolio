@@ -3,7 +3,7 @@
 // Auto-detect API URL: use VITE_API_URL if set and valid, otherwise use current origin in production or localhost in development
 const getApiBaseUrl = () => {
   const viteApiUrl = import.meta.env.VITE_API_URL;
-  
+
   // If VITE_API_URL is set, validate it's a proper URL
   if (viteApiUrl) {
     // Check if it's a valid URL (starts with http:// or https://)
@@ -13,7 +13,7 @@ const getApiBaseUrl = () => {
     // If VITE_API_URL is set but invalid (like 'auraportfolio09'), ignore it and use fallback
     console.warn('⚠️ VITE_API_URL is set to invalid value:', viteApiUrl, '- using auto-detection instead');
   }
-  
+
   // In production (any deployed environment), use the current origin
   if (typeof window !== 'undefined') {
     const origin = window.location.origin;
@@ -35,7 +35,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_BASE_URL}${cleanEndpoint}`;
     console.log(`🌐 API Call: ${options.method || 'GET'} ${url}`, { API_BASE_URL, endpoint, cleanEndpoint });
-    
+
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -44,7 +44,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
       },
       mode: 'cors',
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error(`❌ API Error (${response.status}):`, errorText);
@@ -58,7 +58,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
       }
       throw new Error(errorMessage);
     }
-    
+
     // Check if response has content
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('application/json')) {
@@ -77,7 +77,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
         throw new Error('Invalid JSON response from server');
       }
     }
-    
+
     // Non-JSON response
     const text = await response.text();
     console.log(`✅ API Success (non-JSON): ${endpoint}`);
@@ -103,21 +103,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addProject: async (project: any) => {
     return await apiCall('/projects', {
       method: 'POST',
       body: JSON.stringify(project),
     });
   },
-  
+
   updateProject: async (id: string, updates: any) => {
     return await apiCall(`/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deleteProject: async (id: string) => {
     return await apiCall(`/projects/${id}`, {
       method: 'DELETE',
@@ -134,21 +134,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addPost: async (post: any) => {
     return await apiCall('/posts', {
       method: 'POST',
       body: JSON.stringify(post),
     });
   },
-  
+
   updatePost: async (id: string, updates: any) => {
     return await apiCall(`/posts/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deletePost: async (id: string) => {
     return await apiCall(`/posts/${id}`, {
       method: 'DELETE',
@@ -165,21 +165,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addVideo: async (video: any) => {
     return await apiCall('/videos', {
       method: 'POST',
       body: JSON.stringify(video),
     });
   },
-  
+
   updateVideo: async (id: string, updates: any) => {
     return await apiCall(`/videos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deleteVideo: async (id: string) => {
     return await apiCall(`/videos/${id}`, {
       method: 'DELETE',
@@ -196,14 +196,14 @@ export const storage = {
       return [];
     }
   },
-  
+
   addCertificate: async (cert: any) => {
     return await apiCall('/certificates', {
       method: 'POST',
       body: JSON.stringify(cert),
     });
   },
-  
+
   deleteCertificate: async (id: string) => {
     return await apiCall(`/certificates/${id}`, {
       method: 'DELETE',
@@ -220,21 +220,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addJob: async (job: any) => {
     return await apiCall('/jobs', {
       method: 'POST',
       body: JSON.stringify(job),
     });
   },
-  
+
   updateJob: async (id: string, updates: any) => {
     return await apiCall(`/jobs/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deleteJob: async (id: string) => {
     return await apiCall(`/jobs/${id}`, {
       method: 'DELETE',
@@ -251,14 +251,14 @@ export const storage = {
       return [];
     }
   },
-  
+
   addReview: async (review: any) => {
     return await apiCall('/reviews', {
       method: 'POST',
       body: JSON.stringify(review),
     });
   },
-  
+
   deleteReview: async (id: string) => {
     return await apiCall(`/reviews/${id}`, {
       method: 'DELETE',
@@ -275,21 +275,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addQA: async (qa: any) => {
     return await apiCall('/qas', {
       method: 'POST',
       body: JSON.stringify(qa),
     });
   },
-  
+
   updateQA: async (id: string, updates: any) => {
     return await apiCall(`/qas/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deleteQA: async (id: string) => {
     return await apiCall(`/qas/${id}`, {
       method: 'DELETE',
@@ -306,21 +306,21 @@ export const storage = {
       return [];
     }
   },
-  
+
   addMessage: async (message: any) => {
     return await apiCall('/messages', {
       method: 'POST',
       body: JSON.stringify(message),
     });
   },
-  
+
   updateMessage: async (id: string, updates: any) => {
     return await apiCall(`/messages/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
   },
-  
+
   deleteMessage: async (id: string) => {
     return await apiCall(`/messages/${id}`, {
       method: 'DELETE',
@@ -336,7 +336,7 @@ export const storage = {
       return {};
     }
   },
-  
+
   updateSettings: async (settings: any) => {
     return await apiCall('/settings', {
       method: 'PUT',
@@ -371,6 +371,14 @@ export const storage = {
     });
   },
 
+  // Aura Assistant - Save contact info
+  auraSubmitContact: async (contact: any) => {
+    return await apiCall('/contact', {
+      method: 'POST',
+      body: JSON.stringify(contact),
+    });
+  },
+
   // Newsletter Subscriptions
   getNewsletterSubscriptions: async () => {
     try {
@@ -381,14 +389,14 @@ export const storage = {
       return [];
     }
   },
-  
+
   addNewsletterSubscription: async (email: string) => {
     return await apiCall('/newsletter', {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
   },
-  
+
   deleteNewsletterSubscription: async (id: string) => {
     return await apiCall(`/newsletter/${id}`, {
       method: 'DELETE',

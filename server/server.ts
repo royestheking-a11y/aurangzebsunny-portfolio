@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { connectToDatabase, getDatabase } from './config/db';
+import { deleteFromCloudinary } from './utils/cloudinary';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -12,7 +13,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.header('Access-Control-Allow-Credentials', 'true');
-  
+
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
@@ -42,7 +43,7 @@ async function ensureCollections() {
   try {
     const db = getDatabase();
     const collections = ['projects', 'posts', 'videos', 'certificates', 'jobs', 'reviews', 'qas', 'messages', 'newsletter', 'settings'];
-    
+
     for (const collectionName of collections) {
       const exists = await db.listCollections({ name: collectionName }).hasNext();
       if (!exists) {
@@ -66,7 +67,7 @@ async function startServer() {
     await connectToDatabase();
     await ensureCollections();
     dbReady = true;
-    
+
     // Start server
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
@@ -118,16 +119,16 @@ app.put('/api/projects/:id', async (req: Request, res: Response) => {
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Project not found' });
     }
-    
+
     const updatedProject = await getCollection('projects').findOne({ id });
     if (!updatedProject) {
       return res.status(404).json({ error: 'Project not found after update' });
     }
-    
+
     res.json(updatedProject);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -137,6 +138,10 @@ app.put('/api/projects/:id', async (req: Request, res: Response) => {
 app.delete('/api/projects/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const project = await getCollection('projects').findOne({ id });
+    if (project && project.image) {
+      await deleteFromCloudinary(project.image);
+    }
     await getCollection('projects').deleteOne({ id });
     res.json({ success: true });
   } catch (error: any) {
@@ -181,16 +186,16 @@ app.put('/api/posts/:id', async (req: Request, res: Response) => {
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Post not found' });
     }
-    
+
     const updatedPost = await getCollection('posts').findOne({ id });
     if (!updatedPost) {
       return res.status(404).json({ error: 'Post not found after update' });
     }
-    
+
     res.json(updatedPost);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -200,6 +205,10 @@ app.put('/api/posts/:id', async (req: Request, res: Response) => {
 app.delete('/api/posts/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const post = await getCollection('posts').findOne({ id });
+    if (post && post.thumbnail) {
+      await deleteFromCloudinary(post.thumbnail);
+    }
     await getCollection('posts').deleteOne({ id });
     res.json({ success: true });
   } catch (error: any) {
@@ -240,23 +249,23 @@ app.put('/api/videos/:id', async (req: Request, res: Response) => {
       ...updates,
       updatedAt: new Date().toISOString(),
     };
-    
+
     // Update the video
     const updateResult = await getCollection('videos').updateOne(
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Video not found' });
     }
-    
+
     // Fetch the updated video
     const updatedVideo = await getCollection('videos').findOne({ id });
     if (!updatedVideo) {
       return res.status(404).json({ error: 'Video not found after update' });
     }
-    
+
     res.json(updatedVideo);
   } catch (error: any) {
     console.error('Error updating video:', error);
@@ -301,6 +310,10 @@ app.post('/api/certificates', async (req: Request, res: Response) => {
 app.delete('/api/certificates/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const cert = await getCollection('certificates').findOne({ id });
+    if (cert && cert.image) {
+      await deleteFromCloudinary(cert.image);
+    }
     await getCollection('certificates').deleteOne({ id });
     res.json({ success: true });
   } catch (error: any) {
@@ -345,16 +358,16 @@ app.put('/api/jobs/:id', async (req: Request, res: Response) => {
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Job not found' });
     }
-    
+
     const updatedJob = await getCollection('jobs').findOne({ id });
     if (!updatedJob) {
       return res.status(404).json({ error: 'Job not found after update' });
     }
-    
+
     res.json(updatedJob);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -398,6 +411,10 @@ app.post('/api/reviews', async (req: Request, res: Response) => {
 app.delete('/api/reviews/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const review = await getCollection('reviews').findOne({ id });
+    if (review && review.avatar) {
+      await deleteFromCloudinary(review.avatar);
+    }
     await getCollection('reviews').deleteOne({ id });
     res.json({ success: true });
   } catch (error: any) {
@@ -442,16 +459,16 @@ app.put('/api/qas/:id', async (req: Request, res: Response) => {
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Q&A not found' });
     }
-    
+
     const updatedQA = await getCollection('qas').findOne({ id });
     if (!updatedQA) {
       return res.status(404).json({ error: 'Q&A not found after update' });
     }
-    
+
     res.json(updatedQA);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -506,16 +523,16 @@ app.put('/api/messages/:id', async (req: Request, res: Response) => {
       { id },
       { $set: updateData }
     );
-    
+
     if (updateResult.matchedCount === 0) {
       return res.status(404).json({ error: 'Message not found' });
     }
-    
+
     const updatedMessage = await getCollection('messages').findOne({ id });
     if (!updatedMessage) {
       return res.status(404).json({ error: 'Message not found after update' });
     }
-    
+
     res.json(updatedMessage);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -556,7 +573,7 @@ app.put('/api/settings', async (req: Request, res: Response) => {
       { $set: settings },
       { upsert: true }
     );
-    
+
     // Fetch the updated settings to return
     const updatedSettings = await getCollection('settings').findOne({ id: 'main' });
     res.json(updatedSettings || settings);
@@ -685,17 +702,17 @@ app.get('/api/health', async (req: Request, res: Response) => {
   try {
     const db = getDatabase();
     const collections = await db.listCollections().toArray();
-    res.json({ 
-      status: 'ok', 
+    res.json({
+      status: 'ok',
       message: 'API is running',
       database: 'auraportfolio',
       collections: collections.map(c => c.name),
       collectionCount: collections.length
     });
   } catch (error: any) {
-    res.status(500).json({ 
-      status: 'error', 
-      message: error.message 
+    res.status(500).json({
+      status: 'error',
+      message: error.message
     });
   }
 });

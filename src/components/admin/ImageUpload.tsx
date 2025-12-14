@@ -12,53 +12,54 @@ interface ImageUploadProps {
   maxHeight?: number;
 }
 
+// Cloudinary configuration
+const CLOUD_NAME = 'do5jdaaef';
+const UPLOAD_PRESET = 'AurangPortfolio';
+
 export function ImageUpload({ value, onChange, aspectRatio, maxWidth, maxHeight }: ImageUploadProps) {
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState('');
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+      // Check file size (max 10MB for Cloudinary)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
         return;
       }
 
-      // Read file as data URL
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          // Create canvas to resize if needed
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
+      setUploading(true);
 
-          // Resize if needed
-          if (maxWidth && width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-          if (maxHeight && height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
 
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-            onChange(dataUrl);
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
           }
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+        );
+
+        const data = await response.json();
+
+        if (data.secure_url) {
+          onChange(data.secure_url);
+        } else {
+          console.error('Upload failed', data);
+          alert('Upload failed: ' + (data.error?.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        alert('Error uploading image');
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -80,12 +81,15 @@ export function ImageUpload({ value, onChange, aspectRatio, maxWidth, maxHeight 
   return (
     <div className="space-y-4">
       {value ? (
-        <div className="relative">
+        <div className="relative group">
           <img
             src={value}
             alt="Preview"
             className="w-full h-48 object-cover rounded-lg border border-border"
           />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+            <p className="text-white text-xs font-mono break-all px-4 text-center">{value}</p>
+          </div>
           <Button
             variant="destructive"
             size="icon"
@@ -103,9 +107,10 @@ export function ImageUpload({ value, onChange, aspectRatio, maxWidth, maxHeight 
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               className="flex-1"
+              disabled={uploading}
             >
               <Upload className="w-4 h-4 mr-2" />
-              Upload Image
+              {uploading ? 'Uploading...' : 'Upload Image'}
             </Button>
             <Button
               type="button"
@@ -141,11 +146,14 @@ export function ImageUpload({ value, onChange, aspectRatio, maxWidth, maxHeight 
               </Button>
             </div>
           )}
+          {uploading && (
+            <p className="text-xs text-muted-foreground animate-pulse">Uploading to Cloudinary...</p>
+          )}
         </div>
       )}
-      {value && (
-        <div className="text-xs text-muted-foreground">
-          Image loaded: {value.startsWith('data:') ? 'Local file' : 'External URL'}
+      {value && !value.includes('cloudinary') && (
+        <div className="text-xs text-yellow-500">
+          ⚠️ Using legacy/external URL
         </div>
       )}
     </div>

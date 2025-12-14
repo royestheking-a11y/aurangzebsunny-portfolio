@@ -6,7 +6,7 @@ import { Textarea } from './ui/textarea';
 import { ArrowRight, Calendar, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { api } from '../utils/api';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function Hero() {
   const [appointmentOpen, setAppointmentOpen] = useState(false);
@@ -23,7 +23,7 @@ export function Hero() {
   const handleAppointmentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       await api.submitContact({
         ...formData,
@@ -118,7 +118,7 @@ export function Hero() {
             <br />
             <span className="gradient-text">Develop With Passion.</span>
           </h1>
-          
+
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">
             Every pixel and line of code I create is driven by intention and heart.
             I craft meaningful, user-centric digital experiences that solve real-world problems.
@@ -159,7 +159,7 @@ export function Hero() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAppointmentSubmit} className="space-y-4 mt-4">
-            
+
             <div>
               <Input
                 placeholder="Your Name"

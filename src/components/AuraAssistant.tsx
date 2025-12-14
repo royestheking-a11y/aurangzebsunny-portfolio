@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { storage } from '../utils/storage';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Textarea } from './ui/textarea';
 
 interface Message {
@@ -108,112 +108,112 @@ const knowledgeBase = {
 
 function getAIResponse(userMessage: string): string {
   const msg = userMessage.toLowerCase();
-  
+
   // Greeting responses
   if (msg.match(/^(hi|hello|hey|greetings|good morning|good afternoon|good evening)/)) {
     return "Hello! 👋 I'm Aura, Aurangzeb's AI assistant. I'm here to help you learn about his services, expertise, portfolio, and how he can help bring your project to life. Feel free to ask me anything about web development, design, digital marketing, or how to get started!";
   }
-  
+
   // Services related
   if (msg.includes('service') || msg.includes('what do you do') || msg.includes('what can you do') || msg.includes('offer')) {
     return `Aurangzeb offers a comprehensive range of services:\n\n${knowledgeBase.services.map(s => `• ${s}`).join('\n')}\n\nEach service is tailored to your specific needs and goals. Which service interests you the most?`;
   }
-  
+
   // Skills related
   if (msg.includes('skill') || msg.includes('technology') || msg.includes('tech stack') || msg.includes('tools') || msg.includes('software')) {
     return `Aurangzeb has expertise in a wide range of modern technologies:\n\n${knowledgeBase.skills.map(s => `• ${s}`).join('\n')}\n\nWould you like to know more about any specific technology or how these are used in projects?`;
   }
-  
+
   // Expertise & specialization
   if (msg.includes('expert') || msg.includes('speciali') || msg.includes('good at') || msg.includes('best at')) {
     return `Aurangzeb specializes in:\n\n${knowledgeBase.expertise.map(e => `• ${e}`).join('\n')}\n\n${knowledgeBase.experience}\n\nWhat type of project are you planning?`;
   }
-  
+
   // Experience & Portfolio
   if (msg.includes('experience') || msg.includes('portfolio') || msg.includes('work') || msg.includes('projects') || msg.includes('clients')) {
     return `${knowledgeBase.experience}.\n\nIndustries served:\n${knowledgeBase.industries.slice(0, 5).map(i => `• ${i}`).join('\n')}\n\nYou can view featured projects in the portfolio section above. Each project showcases different skills and approaches. Would you like to know about a specific type of project?`;
   }
-  
+
   // Availability & Hiring
   if (msg.includes('available') || msg.includes('hire') || msg.includes('freelance') || msg.includes('book') || msg.includes('start')) {
     return `${knowledgeBase.availability}.\n\nWhat I offer:\n${knowledgeBase.whyChoose.slice(0, 4).map(w => `• ${w}`).join('\n')}\n\nReady to discuss your project? You can book a free consultation call or send a message through the contact form!`;
   }
-  
+
   // Contact information
   if (msg.includes('contact') || msg.includes('reach') || msg.includes('email') || msg.includes('phone') || msg.includes('whatsapp') || msg.includes('call')) {
     return `You can reach Aurangzeb through:\n\n• Contact form (at the bottom of this page)\n• Email: Check the contact section\n• WhatsApp: Quick consultation available\n\nResponse time: Within 24 hours ✓\n\nWhat's the best way to reach you? I can help you get started with a message!`;
   }
-  
+
   // Pricing & Budget
   if (msg.includes('price') || msg.includes('cost') || msg.includes('rate') || msg.includes('budget') || msg.includes('fee') || msg.includes('charge')) {
     return `${knowledgeBase.pricing}\n\nTypical project ranges:\n• Landing page: Starting from competitive rates\n• Full website: Custom quote based on features\n• E-commerce: Depends on products and integrations\n• Mobile app: Based on complexity and platforms\n\nEvery project is unique! Book a free consultation to discuss your specific requirements and receive a detailed, transparent quote.`;
   }
-  
+
   // Process & Workflow
   if (msg.includes('process') || msg.includes('workflow') || msg.includes('how do you work') || msg.includes('methodology') || msg.includes('approach')) {
     return `Aurangzeb follows a proven 6-step process:\n\n${knowledgeBase.process}\n\nEach phase includes:\n• Discovery: ${knowledgeBase.processDetails.discovery}\n• Design: ${knowledgeBase.processDetails.design}\n• Development: ${knowledgeBase.processDetails.development}\n• Testing: ${knowledgeBase.processDetails.testing}\n• Launch: ${knowledgeBase.processDetails.launch}\n• Support: ${knowledgeBase.processDetails.support}\n\nWould you like to know more about any specific phase?`;
   }
-  
+
   // Design related
   if (msg.includes('design') || msg.includes('ui') || msg.includes('ux') || msg.includes('user interface') || msg.includes('user experience')) {
     return "Aurangzeb specializes in user-centered design that combines aesthetics with functionality:\n\n• Modern, clean interface design\n• User research and persona development\n• Wireframing and interactive prototyping\n• Design systems and component libraries\n• Accessibility and inclusive design\n• Mobile-first responsive design\n\nTools: Figma, Adobe XD, Sketch, and more\n\nLooking for UI/UX design services for your project?";
   }
-  
+
   // Development related
   if (msg.includes('develop') || msg.includes('website') || msg.includes('web app') || msg.includes('build') || msg.includes('code')) {
     return "Aurangzeb builds modern, high-performance web applications:\n\n• Responsive websites (mobile, tablet, desktop)\n• Single Page Applications (SPA)\n• Progressive Web Apps (PWA)\n• E-commerce platforms\n• Custom CMS solutions\n• API development and integration\n\nTech stack: React, Next.js, Node.js, and more\nFeatures: Fast loading, SEO-optimized, secure, scalable\n\nWhat kind of website or application are you planning to build?";
   }
-  
+
   // Marketing & SEO related
   if (msg.includes('market') || msg.includes('seo') || msg.includes('digital') || msg.includes('traffic') || msg.includes('ranking') || msg.includes('google')) {
     return "Digital marketing and SEO services include:\n\n• Technical SEO optimization\n• On-page and off-page SEO\n• Keyword research and strategy\n• Content marketing and strategy\n• Social media marketing\n• Google Analytics setup and analysis\n• Conversion rate optimization\n• Email marketing campaigns\n\nHelp your business grow online with proven strategies that increase visibility, traffic, and conversions!";
   }
-  
+
   // Timeline & Duration
   if (msg.includes('timeline') || msg.includes('how long') || msg.includes('duration') || msg.includes('time') || msg.includes('fast') || msg.includes('quick')) {
     return `Project timelines vary based on scope:\n\n${Object.entries(knowledgeBase.timeline).map(([key, value]) => `• ${value}`).join('\n')}\n\nRush projects can be accommodated with proper planning. The timeline includes all phases: design, development, testing, and launch.\n\nWhat type of project do you have in mind?`;
   }
-  
+
   // Industries
   if (msg.includes('industry') || msg.includes('sector') || msg.includes('niche') || msg.includes('ecommerce') || msg.includes('e-commerce') || msg.includes('saas') || msg.includes('healthcare')) {
     return `Aurangzeb has experience across multiple industries:\n\n${knowledgeBase.industries.map(i => `• ${i}`).join('\n')}\n\nEach industry has unique requirements, and projects are customized accordingly. Which industry is your business in?`;
   }
-  
+
   // Deliverables & What you get
   if (msg.includes('deliver') || msg.includes('get') || msg.includes('receive') || msg.includes('include') || msg.includes('package')) {
     return `When you work with Aurangzeb, you receive:\n\n${knowledgeBase.deliverables.map(d => `✓ ${d}`).join('\n')}\n\nEverything you need for a successful project launch and beyond!`;
   }
-  
+
   // Why choose / Benefits
   if (msg.includes('why') || msg.includes('benefit') || msg.includes('advantage') || msg.includes('different') || msg.includes('better')) {
     return `Why choose Aurangzeb:\n\n${knowledgeBase.whyChoose.map(w => `✓ ${w}`).join('\n')}\n\nClient satisfaction is the top priority, with a focus on delivering measurable results!`;
   }
-  
+
   // Technologies - Specific
   if (msg.includes('react') || msg.includes('next') || msg.includes('node')) {
     return "Yes! Aurangzeb is highly proficient in modern JavaScript frameworks:\n\n• React - For building dynamic, component-based UIs\n• Next.js - For server-side rendering and optimal performance\n• Node.js - For scalable backend development\n• TypeScript - For type-safe, maintainable code\n\nThese technologies enable fast, SEO-friendly, and scalable applications. Need a React or Next.js project?";
   }
-  
+
   // WordPress
   if (msg.includes('wordpress') || msg.includes('wp') || msg.includes('cms')) {
     return "WordPress development services include:\n\n• Custom theme development\n• Plugin development and customization\n• WooCommerce setup and optimization\n• Site migration and maintenance\n• Performance optimization\n• Security hardening\n• SEO configuration\n\nWordPress is great for content-heavy sites and e-commerce. Would you like a WordPress solution?";
   }
-  
+
   // Mobile/App
   if (msg.includes('mobile') || msg.includes('app') || msg.includes('ios') || msg.includes('android')) {
     return "Mobile app design and development services:\n\n• Native iOS and Android design\n• Responsive web apps (PWA)\n• Cross-platform solutions\n• User-friendly interfaces\n• Performance optimization\n• App store guidelines compliance\n\nMobile-first approach ensures great experience on all devices. Planning a mobile app?";
   }
-  
+
   // Support & Maintenance
   if (msg.includes('support') || msg.includes('maintenance') || msg.includes('update') || msg.includes('fix') || msg.includes('help after')) {
     return "Post-launch support and maintenance includes:\n\n• Bug fixes and troubleshooting\n• Feature updates and enhancements\n• Security updates\n• Performance monitoring\n• Content updates\n• Technical support\n• Regular backups\n\nOngoing support packages available to keep your site running smoothly!";
   }
-  
+
   // Consultation
   if (msg.includes('consult') || msg.includes('meeting') || msg.includes('discuss') || msg.includes('talk')) {
     return "Free consultation includes:\n\n• Understanding your business goals\n• Discussing project requirements\n• Reviewing design preferences\n• Exploring technical options\n• Timeline and budget discussion\n• Answering all your questions\n\nNo obligation, just a friendly chat about your project! Ready to schedule a consultation?";
   }
-  
+
   // Getting started
   if (msg.includes('start') || msg.includes('begin') || msg.includes('first step') || msg.includes('get going')) {
     return "Getting started is easy:\n\n1. Share your project details via the contact form\n2. Schedule a free consultation call\n3. Receive a detailed proposal and quote\n4. Review and approve the plan\n5. Project kickoff and development begins!\n\nYou can send a message right now using the contact form below, or I can collect your details here!";
@@ -228,7 +228,7 @@ function getAIResponse(userMessage: string): string {
   if (msg.match(/^(bye|goodbye|see you|cya|later)/)) {
     return "Thanks for chatting! If you need anything else or want to discuss your project, I'm always here. Don't hesitate to reach out through the contact form. Have a great day! 👋";
   }
-  
+
   // Default response - be helpful
   return "That's a great question! I'd be happy to help you with information about:\n\n• Services offered (design, development, marketing)\n• Technologies and skills\n• Project process and timeline\n• Pricing and packages\n• Portfolio and past work\n• How to get started\n\nWhat would you like to know more about? Or feel free to ask your question in a different way!";
 }
@@ -393,7 +393,7 @@ export function AuraAssistant() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 w-[400px] h-[600px] bg-card border-2 border-primary/20 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
+            className="fixed bottom-6 right-4 left-4 md:left-auto md:right-6 md:w-[400px] h-[600px] max-h-[80vh] bg-card border-2 border-primary/20 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary to-accent text-white p-4 flex items-center justify-between">
@@ -423,11 +423,10 @@ export function AuraAssistant() {
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[80%] p-3 rounded-2xl ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
+                    className={`max-w-[80%] p-3 rounded-2xl ${message.role === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted'
+                      }`}
                   >
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -507,9 +506,9 @@ export function AuraAssistant() {
                     <Button type="submit" className="flex-1 bg-primary">
                       Submit
                     </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
+                    <Button
+                      type="button"
+                      variant="outline"
                       onClick={() => setShowContactForm(false)}
                       className="flex-1"
                     >
