@@ -559,7 +559,10 @@ export const storage = {
   addNewsletterSubscription: async (email: string) => {
     return await apiCall('/newsletter', {
       method: 'POST',
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({
+        email,
+        createdAt: new Date().toISOString()
+      }),
     });
   },
 

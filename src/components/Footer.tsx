@@ -44,7 +44,9 @@ export function Footer() {
         {
           name: "Friend",
           to_email: email,
-          email: email
+          email: email,
+          reply_to: email,
+          message: "Welcome to the community! We're glad to have you."
         }
       );
 

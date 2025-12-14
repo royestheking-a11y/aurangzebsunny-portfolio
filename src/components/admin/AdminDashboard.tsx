@@ -2246,7 +2246,7 @@ function LiveClock() {
 
   return (
     <div className="flex items-center gap-4 bg-card/50 px-4 py-2 rounded-xl border border-white/10 backdrop-blur-sm shadow-sm hover:bg-card/70 transition-colors">
-      <div className="text-right hidden sm:block">
+      <div className="text-right">
         <p className="text-sm font-bold text-foreground font-mono tabular-nums tracking-tight">
           {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </p>
