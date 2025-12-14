@@ -203,8 +203,8 @@ export function Projects() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background overscroll-none touch-none"
-              style={{ zIndex: 2147483647 }}
+              className="fixed inset-0 bg-background overscroll-none"
+              style={{ zIndex: 100 }}
               onClick={handleCloseProject}
             >
               <motion.div
@@ -336,13 +336,13 @@ export function Projects() {
                         </a>
                       </Button>
                     )}
-                    <DropdownMenu>
+                    <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
                         <Button size="lg" variant="secondary" className="w-full text-base">
                           <Share2 className="w-4 h-4 mr-2" /> Share Project
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56" style={{ zIndex: 2147483647 }}>
+                      <DropdownMenuContent align="end" className="w-56" style={{ zIndex: 1000 }}>
                         <DropdownMenuItem onClick={() => {
                           const url = encodeURIComponent(window.location.href);
                           window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
