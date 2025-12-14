@@ -1,161 +1,147 @@
-import React, { useState, useRef } from 'react';
-import { Upload, X, Link as LinkIcon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, X, Image as ImageIcon, Link as LinkIcon, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { toast } from 'sonner';
 
 interface ImageUploadProps {
-  value: string;
-  onChange: (url: string) => void;
-  aspectRatio?: number;
-  maxWidth?: number;
-  maxHeight?: number;
+    value: string;
+    onChange: (url: string) => void;
+    aspectRatio?: number;
+    maxWidth?: number;
+    maxHeight?: number;
 }
 
-// Cloudinary configuration
-const CLOUD_NAME = 'do5jdaaef';
-const UPLOAD_PRESET = 'AurangPortfolio';
+export function ImageUpload({
+    value,
+    onChange,
+    aspectRatio = 16 / 9,
+    maxWidth = 800,
+    maxHeight = 450
+}: ImageUploadProps) {
+    const [preview, setPreview] = useState(value);
+    const [loading, setLoading] = useState(false);
+    const [inputType, setInputType] = useState<'url' | 'file'>('url');
 
-export function ImageUpload({ value, onChange, aspectRatio, maxWidth, maxHeight }: ImageUploadProps) {
-  const [showUrlInput, setShowUrlInput] = useState(false);
-  const [urlInput, setUrlInput] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+    // Update preview when value changes
+    useEffect(() => {
+        setPreview(value);
+    }, [value]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Check file size (max 10MB for Cloudinary)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB');
-        return;
-      }
-
-      setUploading(true);
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', UPLOAD_PRESET);
-
-      try {
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-          {
-            method: 'POST',
-            body: formData,
-          }
-        );
-
-        const data = await response.json();
-
-        if (data.secure_url) {
-          onChange(data.secure_url);
-        } else {
-          console.error('Upload failed', data);
-          alert('Upload failed: ' + (data.error?.message || 'Unknown error'));
+    const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const url = e.target.value;
+        onChange(url);
+        // Simple validation to check if it looks like an image URL
+        if (url && (url.match(/\.(jpeg|jpg|gif|png|webp)|cloudinary|unsplash/i) || url.startsWith('data:image'))) {
+            setPreview(url);
         }
-      } catch (error) {
-        console.error('Error uploading to Cloudinary:', error);
-        alert('Error uploading image');
-      } finally {
-        setUploading(false);
-      }
-    }
-  };
+    };
 
-  const handleUrlSubmit = () => {
-    if (urlInput) {
-      onChange(urlInput);
-      setUrlInput('');
-      setShowUrlInput(false);
-    }
-  };
+    const handleClear = () => {
+        onChange('');
+        setPreview('');
+    };
 
-  const handleRemove = () => {
-    onChange('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
+    const handleImageError = () => {
+        // Only show error toast if there was a value
+        if (preview) {
+            // quiet fail or show indicator?
+            // toast.error('Failed to load image preview');
+        }
+    };
 
-  return (
-    <div className="space-y-4">
-      {value ? (
-        <div className="relative group">
-          <img
-            src={value}
-            alt="Preview"
-            className="w-full h-48 object-cover rounded-lg border border-border"
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-            <p className="text-white text-xs font-mono break-all px-4 text-center">{value}</p>
-          </div>
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2"
-            onClick={handleRemove}
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex-1"
-              disabled={uploading}
-            >
-              <Upload className="w-4 h-4 mr-2" />
-              {uploading ? 'Uploading...' : 'Upload Image'}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowUrlInput(!showUrlInput)}
-            >
-              <LinkIcon className="w-4 h-4 mr-2" />
-              URL
-            </Button>
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          {showUrlInput && (
-            <div className="flex gap-2">
-              <Input
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                placeholder="Enter image URL"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleUrlSubmit();
-                  }
-                }}
-              />
-              <Button type="button" onClick={handleUrlSubmit}>
-                Add
-              </Button>
+    return (
+        <div className="space-y-4">
+            {/* Input Type Toggle (Hidden for now as we focus on URL, but structure is ready) */}
+            <div className="flex bg-muted/50 p-1 rounded-lg w-fit hidden">
+                <button
+                    type="button"
+                    onClick={() => setInputType('url')}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${inputType === 'url' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                >
+                    Image URL
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setInputType('file')}
+                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${inputType === 'file' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                >
+                    Upload
+                </button>
             </div>
-          )}
-          {uploading && (
-            <p className="text-xs text-muted-foreground animate-pulse">Uploading to Cloudinary...</p>
-          )}
+
+            {preview ? (
+                <div className="relative group rounded-xl overflow-hidden border border-border/50 bg-black/20">
+                    <div
+                        className="w-full relative"
+                        style={{ paddingBottom: `${(1 / aspectRatio) * 100}%` }}
+                    >
+                        <img
+                            src={preview}
+                            alt="Preview"
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            onError={handleImageError}
+                        />
+
+                        {/* Overlay Actions */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="h-9 w-9 p-0 rounded-full"
+                                onClick={handleClear}
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                            <a
+                                href={preview}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="h-9 w-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
+                            >
+                                <LinkIcon className="h-4 w-4" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="border-2 border-dashed border-border/50 rounded-xl p-8 transition-colors hover:border-primary/50 hover:bg-primary/5 group">
+                    <div className="flex flex-col items-center justify-center text-center space-y-4">
+                        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <ImageIcon className="h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="font-semibold text-lg">Add an Image</h3>
+                            <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                                Paste an image URL below to preview
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* URL Input */}
+            <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <LinkIcon className="h-4 w-4" />
+                </div>
+                <Input
+                    value={value || ''} // Handle null/undefined
+                    onChange={handleUrlChange}
+                    placeholder="https://example.com/image.jpg"
+                    className="pl-9 bg-background/50 border-white/10 focus:border-primary/50 transition-all font-mono text-xs"
+                />
+            </div>
+
+            {/* Helper text */}
+            <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-wider">
+                <span>Supported: JPG, PNG, WEBP</span>
+                <span>Aspect Ratio: {aspectRatio}:1</span>
+            </div>
         </div>
-      )}
-      {value && !value.includes('cloudinary') && (
-        <div className="text-xs text-yellow-500">
-          ⚠️ Using legacy/external URL
-        </div>
-      )}
-    </div>
-  );
+    );
 }

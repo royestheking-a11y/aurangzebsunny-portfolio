@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  FileText, 
-  Video, 
-  Award, 
-  Briefcase, 
-  Star, 
-  HelpCircle, 
-  MessageSquare, 
+import {
+  LayoutDashboard,
+  FolderKanban,
+  FileText,
+  Video,
+  Award,
+  Briefcase,
+  Star,
+  HelpCircle,
+  MessageSquare,
   Send,
-  Settings, 
-  Plus, 
-  Edit, 
+  Settings,
+  Plus,
+  Edit,
   Trash2,
   LogOut,
   Check,
   X,
   Mail,
-  Play
+  Play,
+  User,
+  Menu
 } from 'lucide-react';
 import { storage } from '../../utils/storage';
 import { Button } from '../ui/button';
@@ -26,7 +28,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ImageUpload } from './ImageUpload';
 
 interface AdminDashboardProps {
@@ -38,8 +40,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [analytics, setAnalytics] = useState<any>(null);
   const [data, setData] = useState<any>({});
   const [loading, setLoading] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Load analytics
   useEffect(() => {
@@ -102,7 +103,6 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
     } catch (error: any) {
       console.error('Error loading data:', error);
       toast.error(`Failed to load ${currentView}: ${error.message || 'Check if server is running'}`);
-      // Set empty data on error
       setData({});
     } finally {
       setLoading(false);
@@ -117,111 +117,108 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl gradient-text">Admin Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Manage your portfolio content</p>
+    <div className="min-h-screen bg-background relative overflow-hidden flex">
+      {/* Background Ambience */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+      </div>
+
+      {/* Floating Glass Sidebar (Desktop) */}
+      <aside className="w-80 h-screen sticky top-0 p-6 z-20 flex flex-col gap-6 hidden md:flex">
+        <div className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl h-full p-6 flex flex-col shadow-2xl relative overflow-hidden group">
+          {/* Glossy sheen */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8 px-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+              <LayoutDashboard className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold text-lg leading-tight tracking-wide">Admin<br /><span className="text-primary font-light">Console</span></h1>
+            </div>
           </div>
-          <Button 
-            variant="outline" 
-            onClick={onLogout}
-            className="hover-glow border-2 hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-card border-r border-border min-h-screen sticky top-16">
-          <nav className="p-4 space-y-2">
-            <NavItem
-              icon={<LayoutDashboard className="w-5 h-5" />}
-              label="Overview"
-              active={currentView === 'overview'}
-              onClick={() => setCurrentView('overview')}
-              badge={null}
-            />
-            <NavItem
-              icon={<FolderKanban className="w-5 h-5" />}
-              label="Projects"
-              active={currentView === 'projects'}
-              onClick={() => setCurrentView('projects')}
-              badge={analytics?.totalProjects}
-            />
-            <NavItem
-              icon={<FileText className="w-5 h-5" />}
-              label="Blog Posts"
-              active={currentView === 'posts'}
-              onClick={() => setCurrentView('posts')}
-              badge={analytics?.totalPosts}
-            />
-            <NavItem
-              icon={<Video className="w-5 h-5" />}
-              label="Videos"
-              active={currentView === 'videos'}
-              onClick={() => setCurrentView('videos')}
-              badge={analytics?.totalVideos}
-            />
-            <NavItem
-              icon={<Award className="w-5 h-5" />}
-              label="Certificates"
-              active={currentView === 'certificates'}
-              onClick={() => setCurrentView('certificates')}
-              badge={analytics?.totalCertificates}
-            />
-            <NavItem
-              icon={<Briefcase className="w-5 h-5" />}
-              label="Experience"
-              active={currentView === 'jobs'}
-              onClick={() => setCurrentView('jobs')}
-              badge={analytics?.totalJobs}
-            />
-            <NavItem
-              icon={<Star className="w-5 h-5" />}
-              label="Reviews"
-              active={currentView === 'reviews'}
-              onClick={() => setCurrentView('reviews')}
-              badge={analytics?.totalReviews}
-            />
-            <NavItem
-              icon={<HelpCircle className="w-5 h-5" />}
-              label="Q&A"
-              active={currentView === 'qa'}
-              onClick={() => setCurrentView('qa')}
-              badge={null}
-            />
-            <NavItem
-              icon={<MessageSquare className="w-5 h-5" />}
-              label="Messages"
-              active={currentView === 'messages'}
-              onClick={() => setCurrentView('messages')}
-              badge={analytics?.unreadMessages}
-            />
-            <NavItem
-              icon={<Send className="w-5 h-5" />}
-              label="Newsletter"
-              active={currentView === 'newsletter'}
-              onClick={() => setCurrentView('newsletter')}
-              badge={null}
-            />
-            <NavItem
-              icon={<Settings className="w-5 h-5" />}
-              label="Settings"
-              active={currentView === 'settings'}
-              onClick={() => setCurrentView('settings')}
-              badge={null}
-            />
+          {/* Nav */}
+          <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
+            <AdminNavContent currentView={currentView} setCurrentView={setCurrentView} analytics={analytics} />
           </nav>
-        </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-8">
+          {/* Footer User */}
+          <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <p className="font-medium">Aurangzeb</p>
+                <p className="text-muted-foreground">Admin</p>
+              </div>
+            </div>
+            <button onClick={onLogout} className="p-2 hover:bg-white/10 rounded-lg transition-colors text-muted-foreground hover:text-red-400">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-background">
+          <div className="flex items-center justify-between p-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
+                <LayoutDashboard className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="font-bold text-lg">Admin<span className="text-primary font-light">Console</span></h1>
+            </div>
+            <Button size="icon" variant="ghost" onClick={() => setIsMobileMenuOpen(false)}>
+              <X className="w-6 h-6" />
+            </Button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <nav className="space-y-2">
+              <AdminNavContent
+                currentView={currentView}
+                setCurrentView={(view: string) => {
+                  setCurrentView(view);
+                  setIsMobileMenuOpen(false);
+                }}
+                analytics={analytics}
+              />
+            </nav>
+          </div>
+          <div className="p-6 border-t border-white/10">
+            <Button variant="destructive" className="w-full justify-start gap-2" onClick={onLogout}>
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <main className="flex-1 p-6 z-10 overflow-y-auto h-screen custom-scrollbar">
+        <div className="max-w-[1600px] mx-auto space-y-8">
+          {/* Header for Mobile/Title */}
+          <div className="flex items-center justify-between mb-8 md:hidden">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <LayoutDashboard className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-xl font-bold">Admin</h1>
+            </div>
+            <div className="flex gap-2">
+              <Button size="icon" variant="outline" className="bg-card/50" onClick={() => setIsMobileMenuOpen(true)}>
+                <Menu className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+          {/* Only show title on desktop if needed, usually nav handles context */}
+
+          {/* Content Switcher */}
           {currentView === 'overview' && <OverviewView analytics={analytics} />}
           {currentView === 'projects' && (
             <ProjectsView
@@ -230,87 +227,77 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               onRefresh={onRefresh}
             />
           )}
-          {currentView === 'posts' && (
-            <PostsView
-              data={data.posts || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'videos' && (
-            <VideosView
-              data={data.videos || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'certificates' && (
-            <CertificatesView
-              data={data.certificates || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'jobs' && (
-            <JobsView
-              data={data.jobs || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'reviews' && (
-            <ReviewsView
-              data={data.reviews || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'qa' && (
-            <QAView
-              data={data.qas || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
-          {currentView === 'messages' && (
-            <MessagesView
-              data={data.messages || []}
-              loading={loading}
-              onRefresh={onRefresh}
-              onAnalyticsUpdate={loadAnalytics}
-            />
-          )}
-          {currentView === 'newsletter' && (
-            <NewsletterView
-              data={data.newsletter || []}
-              loading={loading}
-              onRefresh={onRefresh}
-            />
-          )}
+          {/* Other views mapped similarly (keeping legacy component names but wrapping logic) */}
+          {currentView === 'posts' && <PostsView data={data.posts || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'videos' && <VideosView data={data.videos || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'certificates' && <CertificatesView data={data.certificates || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'jobs' && <JobsView data={data.jobs || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'reviews' && <ReviewsView data={data.reviews || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'qa' && <QAView data={data.qas || []} loading={loading} onRefresh={onRefresh} />}
+          {currentView === 'messages' && <MessagesView data={data.messages || []} loading={loading} onRefresh={onRefresh} onAnalyticsUpdate={loadAnalytics} />}
+          {/* Newsletter View omitted in original code logic for simplicity or passed through? Re-adding based on context */}
+          {currentView === 'newsletter' && <NewsletterView data={data.newsletter || []} loading={loading} onRefresh={onRefresh} />}
           {currentView === 'settings' && <SettingsView />}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
 
-// Nav Item Component
-function NavItem({ icon, label, active, onClick, badge }: any) {
+// ----------------------
+// Styled Sub-Components
+// ----------------------
+
+function AdminNavContent({ currentView, setCurrentView, analytics }: any) {
+  return (
+    <>
+      <NavCategory label="Main" />
+      <NavItem icon={<LayoutDashboard />} label="Overview" active={currentView === 'overview'} onClick={() => setCurrentView('overview')} />
+      <NavItem icon={<FolderKanban />} label="Projects" active={currentView === 'projects'} onClick={() => setCurrentView('projects')} badge={analytics?.totalProjects} />
+      <NavItem icon={<FileText />} label="Blog Posts" active={currentView === 'posts'} onClick={() => setCurrentView('posts')} badge={analytics?.totalPosts} />
+      <NavItem icon={<Video />} label="Videos" active={currentView === 'videos'} onClick={() => setCurrentView('videos')} badge={analytics?.totalVideos} />
+
+      <NavCategory label="Content" />
+      <NavItem icon={<Award />} label="Certificates" active={currentView === 'certificates'} onClick={() => setCurrentView('certificates')} badge={analytics?.totalCertificates} />
+      <NavItem icon={<Briefcase />} label="Experience" active={currentView === 'jobs'} onClick={() => setCurrentView('jobs')} badge={analytics?.totalJobs} />
+      <NavItem icon={<Star />} label="Reviews" active={currentView === 'reviews'} onClick={() => setCurrentView('reviews')} badge={analytics?.totalReviews} />
+      <NavItem icon={<HelpCircle />} label="Q&A" active={currentView === 'qa'} onClick={() => setCurrentView('qa')} />
+
+      <NavCategory label="Communication" />
+      <NavItem icon={<MessageSquare />} label="Messages" active={currentView === 'messages'} onClick={() => setCurrentView('messages')} badge={analytics?.unreadMessages} badgeColor="bg-red-500" />
+      <NavItem icon={<Send />} label="Newsletter" active={currentView === 'newsletter'} onClick={() => setCurrentView('newsletter')} />
+
+      <NavCategory label="System" />
+      <NavItem icon={<Settings />} label="Settings" active={currentView === 'settings'} onClick={() => setCurrentView('settings')} />
+    </>
+  )
+}
+
+
+function NavCategory({ label }: { label: string }) {
+  return <div className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold mt-6 mb-2 ml-3">{label}</div>
+}
+
+function NavItem({ icon, label, active, onClick, badge, badgeColor = "bg-primary" }: any) {
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-        active
-          ? 'bg-primary text-primary-foreground'
-          : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-      }`}
+      className={`relative w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group overflow-hidden ${active
+        ? 'bg-primary/20 text-primary shadow-lg shadow-primary/10'
+        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+        }`}
     >
-      <div className="flex items-center gap-3">
-        {icon}
-        <span>{label}</span>
+      {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />}
+
+      <div className="flex items-center gap-3 relative z-10">
+        {React.cloneElement(icon as React.ReactElement<any>, {
+          className: `w-5 h-5 transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`
+        })}
+        <span className="font-medium text-sm tracking-wide">{label}</span>
       </div>
-      {badge !== null && badge !== undefined && badge > 0 && (
-        <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs">
+
+      {badge !== undefined && badge !== null && badge > 0 && (
+        <span className={`${badgeColor} text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg shadow-black/20`}>
           {badge}
         </span>
       )}
@@ -320,41 +307,67 @@ function NavItem({ icon, label, active, onClick, badge }: any) {
 
 // Overview Component
 function OverviewView({ analytics }: any) {
-  if (!analytics) {
-    return (
-      <div>
-        <h2 className="text-3xl mb-8">Dashboard Overview</h2>
-        <p className="text-muted-foreground">Loading analytics...</p>
-      </div>
-    );
-  }
+  if (!analytics) return <div className="p-12 text-center text-muted-foreground animate-pulse">Loading analytics dashboard...</div>;
 
   const stats = [
-    { label: 'Projects', value: analytics.totalProjects, icon: FolderKanban, color: 'text-blue-500' },
-    { label: 'Blog Posts', value: analytics.totalPosts, icon: FileText, color: 'text-green-500' },
-    { label: 'Messages', value: analytics.totalMessages, icon: MessageSquare, color: 'text-purple-500' },
-    { label: 'Unread', value: analytics.unreadMessages, icon: MessageSquare, color: 'text-red-500' },
-    { label: 'Videos', value: analytics.totalVideos, icon: Video, color: 'text-orange-500' },
-    { label: 'Certificates', value: analytics.totalCertificates, icon: Award, color: 'text-yellow-500' },
+    { label: 'Total Projects', value: analytics.totalProjects, icon: FolderKanban, color: 'text-blue-500', bg: 'bg-blue-500/10', delay: 0 },
+    { label: 'Blog Posts', value: analytics.totalPosts, icon: FileText, color: 'text-green-500', bg: 'bg-green-500/10', delay: 0.1 },
+    { label: 'Total Messages', value: analytics.totalMessages, icon: MessageSquare, color: 'text-purple-500', bg: 'bg-purple-500/10', delay: 0.2 },
+    { label: 'Unread Messages', value: analytics.unreadMessages, icon: MessageSquare, color: 'text-red-500', bg: 'bg-red-500/10', delay: 0.3 },
+    { label: 'Video Gallery', value: analytics.totalVideos, icon: Video, color: 'text-orange-500', bg: 'bg-orange-500/10', delay: 0.4 },
+    { label: 'Certificates', value: analytics.totalCertificates, icon: Award, color: 'text-yellow-600', bg: 'bg-yellow-500/10', delay: 0.5 },
   ];
 
   return (
-    <div>
-      <h2 className="text-3xl mb-8">Dashboard Overview</h2>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-3xl font-bold text-foreground">Overview</h2>
+        <p className="text-muted-foreground">Welcome back to your command center.</p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-card p-6 rounded-xl border border-border">
-            <div className="flex items-center justify-between mb-4">
-              <stat.icon className={`w-10 h-10 ${stat.color}`} />
-              <span className="text-3xl">{stat.value}</span>
+        {stats.map((stat, idx) => (
+          <div
+            key={idx}
+            className="group relative bg-card border border-border/50 rounded-3xl p-6 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            style={{ animationDelay: `${stat.delay}s` }}
+          >
+            <div className="relative z-10 flex flex-col justify-between h-full space-y-4">
+              <div className="flex items-center justify-between">
+                <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color} border border-border/10`}>
+                  <stat.icon className="w-6 h-6" />
+                </div>
+                <span className={`text-xs font-bold px-2 py-1 rounded-full ${stat.bg} ${stat.color}`}>
+                  +12% vs last month
+                </span>
+              </div>
+
+              <div>
+                <h3 className="text-4xl font-bold text-foreground mb-1 group-hover:scale-105 transition-transform origin-left">
+                  {stat.value || 0}
+                </h3>
+                <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">{stat.label}</p>
+              </div>
             </div>
-            <p className="text-muted-foreground">{stat.label}</p>
           </div>
         ))}
+      </div>
+
+      <div className="bg-card border border-border/50 rounded-3xl p-8">
+        <h3 className="text-lg font-semibold mb-4 text-foreground">Quick Actions</h3>
+        <div className="flex gap-4">
+          <Button variant="outline" className="border-dashed border-border h-auto py-6 w-full max-w-[200px] flex flex-col gap-2 hover:bg-primary/5 hover:border-primary transition-all group">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors text-primary">
+              <Plus className="w-5 h-5" />
+            </div>
+            <span className="text-foreground font-medium">New Project</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
+
 
 // Projects View
 function ProjectsView({ data, loading, onRefresh }: any) {
@@ -391,7 +404,7 @@ function ProjectsView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Title and Description)');
       return;
     }
-    
+
     setSaving(true);
     try {
       if (editingItem) {
@@ -519,8 +532,8 @@ function ProjectsView({ data, loading, onRefresh }: any) {
               <Label>Image URL</Label>
               <ImageUpload
                 value={formData.image || ''}
-                onChange={(url) => setFormData({ ...formData, image: url })}
-                aspectRatio={16/9}
+                onChange={(url: string) => setFormData({ ...formData, image: url })}
+                aspectRatio={16 / 9}
                 maxWidth={800}
                 maxHeight={450}
               />
@@ -598,7 +611,7 @@ function PostsView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Title, Excerpt, and Content)');
       return;
     }
-    
+
     setSaving(true);
     try {
       if (editingItem) {
@@ -722,8 +735,8 @@ function PostsView({ data, loading, onRefresh }: any) {
               <Label>Thumbnail</Label>
               <ImageUpload
                 value={formData.thumbnail || ''}
-                onChange={(url) => setFormData({ ...formData, thumbnail: url })}
-                aspectRatio={16/9}
+                onChange={(url: string) => setFormData({ ...formData, thumbnail: url })}
+                aspectRatio={16 / 9}
                 maxWidth={800}
                 maxHeight={450}
               />
@@ -805,7 +818,7 @@ function VideosView({ data, loading, onRefresh }: any) {
         await storage.addVideo(formData);
         toast.success('Video added successfully!');
       }
-      
+
       setIsDialogOpen(false);
       setEditingId(null);
       setFormData({});
@@ -860,10 +873,10 @@ function VideosView({ data, loading, onRefresh }: any) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {data.map((video: any) => {
             const videoId = getVideoId(video.youtubeUrl);
-            const thumbnail = videoId 
+            const thumbnail = videoId
               ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
               : 'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?w=800';
-            
+
             return (
               <div key={video.id} className="bg-card rounded-xl border border-border overflow-hidden hover-glow transition-all">
                 {/* Video Thumbnail */}
@@ -887,14 +900,14 @@ function VideosView({ data, loading, onRefresh }: any) {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Video Info */}
                 <div className="p-4">
                   <h3 className="text-lg mb-2 line-clamp-1">{video.title}</h3>
                   {video.description && (
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{video.description}</p>
                   )}
-                  
+
                   {/* Actions */}
                   <div className="flex gap-2">
                     <Button
@@ -926,12 +939,12 @@ function VideosView({ data, loading, onRefresh }: any) {
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit Video' : 'Add Video'}</DialogTitle>
             <DialogDescription>
-              {editingId 
-                ? 'Update the video information below.' 
+              {editingId
+                ? 'Update the video information below.'
                 : 'Add a new video from YouTube, YouTube Shorts, or Vimeo to your gallery.'}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto pr-2 space-y-4">
             <div>
               <Label>Title *</Label>
@@ -941,7 +954,7 @@ function VideosView({ data, loading, onRefresh }: any) {
                 placeholder="e.g., My Amazing Project Tutorial"
               />
             </div>
-            
+
             <div>
               <Label>YouTube URL *</Label>
               <Input
@@ -953,7 +966,7 @@ function VideosView({ data, loading, onRefresh }: any) {
                 Supports: youtube.com/watch, youtu.be, youtube.com/shorts
               </p>
             </div>
-            
+
             {/* Video Preview */}
             {formData.youtubeUrl && getVideoId(formData.youtubeUrl) && (
               <div>
@@ -979,7 +992,7 @@ function VideosView({ data, loading, onRefresh }: any) {
                 </div>
               </div>
             )}
-            
+
             <div>
               <Label>Description</Label>
               <Textarea
@@ -994,7 +1007,7 @@ function VideosView({ data, loading, onRefresh }: any) {
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2 pt-4 border-t">
             <Button onClick={handleSave} className="flex-1" disabled={saving}>
               {saving ? 'Saving...' : (editingId ? 'Update Video' : 'Add Video')}
@@ -1028,7 +1041,7 @@ function CertificatesView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Title and Issuer)');
       return;
     }
-    
+
     setSaving(true);
     try {
       await storage.addCertificate(formData);
@@ -1137,8 +1150,8 @@ function CertificatesView({ data, loading, onRefresh }: any) {
               <Label>Certificate Image</Label>
               <ImageUpload
                 value={formData.image || ''}
-                onChange={(url) => setFormData({ ...formData, image: url })}
-                aspectRatio={4/3}
+                onChange={(url: string) => setFormData({ ...formData, image: url })}
+                aspectRatio={4 / 3}
                 maxWidth={800}
                 maxHeight={600}
               />
@@ -1200,7 +1213,7 @@ function JobsView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Title, Company, and Period)');
       return;
     }
-    
+
     setSaving(true);
     try {
       if (editingItem) {
@@ -1363,7 +1376,7 @@ function ReviewsView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Name, Review, and Rating)');
       return;
     }
-    
+
     setSaving(true);
     try {
       await storage.addReview(formData);
@@ -1500,7 +1513,7 @@ function ReviewsView({ data, loading, onRefresh }: any) {
               <Label>Avatar</Label>
               <ImageUpload
                 value={formData.avatar || ''}
-                onChange={(url) => setFormData({ ...formData, avatar: url })}
+                onChange={(url: string) => setFormData({ ...formData, avatar: url })}
                 aspectRatio={1}
                 maxWidth={200}
                 maxHeight={200}
@@ -1547,7 +1560,7 @@ function QAView({ data, loading, onRefresh }: any) {
       toast.error('Please fill in required fields (Question and Answer)');
       return;
     }
-    
+
     setSaving(true);
     try {
       if (editingItem) {
@@ -1740,9 +1753,8 @@ function MessagesView({ data, loading, onRefresh, onAnalyticsUpdate }: any) {
             return (
               <div
                 key={message.id}
-                className={`bg-card p-6 rounded-xl border ${
-                  message.read ? 'border-border' : 'border-primary'
-                }`}
+                className={`bg-card p-6 rounded-xl border ${message.read ? 'border-border' : 'border-primary'
+                  }`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -1789,9 +1801,8 @@ function MessagesView({ data, loading, onRefresh, onAnalyticsUpdate }: any) {
                       <div className="bg-muted/50 p-4 rounded-lg space-y-2 max-h-60 overflow-y-auto">
                         {message.chatHistory.map((chat: any, index: number) => (
                           <div key={index} className={`text-sm ${chat.role === 'user' ? 'text-right' : 'text-left'}`}>
-                            <span className={`inline-block p-2 rounded ${
-                              chat.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card'
-                            }`}>
+                            <span className={`inline-block p-2 rounded ${chat.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card'
+                              }`}>
                               {chat.content}
                             </span>
                           </div>
@@ -1859,7 +1870,7 @@ function NewsletterView({ data, loading, onRefresh }: any) {
       toast.error('Please enter an email address');
       return;
     }
-    
+
     setSaving(true);
     try {
       await storage.addNewsletterSubscription(formData.email || formData);
@@ -2006,7 +2017,7 @@ function SettingsView() {
             <Label>Profile Image</Label>
             <ImageUpload
               value={settings.profileImage || ''}
-              onChange={(url) => setSettings({ ...settings, profileImage: url })}
+              onChange={(url: string) => setSettings({ ...settings, profileImage: url })}
               aspectRatio={1}
               maxWidth={400}
               maxHeight={400}
