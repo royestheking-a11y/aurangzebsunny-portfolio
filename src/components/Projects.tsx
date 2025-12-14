@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ExternalLink, Github, Star, X, ChevronLeft, ChevronRight, Share2, Globe, Layers, Code2 } from 'lucide-react';
 import { storage } from '../utils/storage';
@@ -193,154 +194,157 @@ export function Projects() {
         )}
       </div>
 
-      {/* Full Screen Project Details Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-background"
-            onClick={handleCloseProject}
-          >
+      {/* Full Screen Project Details Modal - Rendered via Portal */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedProject && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="w-full h-full flex flex-col md:flex-row relative"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9999] bg-background overscroll-none touch-none"
+              onClick={handleCloseProject}
             >
-              {/* Close Button */}
-              <button
-                onClick={handleCloseProject}
-                className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="w-full h-full flex flex-col md:flex-row relative"
+                onClick={(e) => e.stopPropagation()}
               >
-                <X className="w-6 h-6" />
-              </button>
+                {/* Close Button */}
+                <button
+                  onClick={handleCloseProject}
+                  className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
 
-              {/* Image Gallery Section (Left/Top) */}
-              <div className="w-full md:w-2/3 bg-black relative flex items-center justify-center overflow-hidden group">
-                <div className="absolute inset-0 bg-neutral-900/50" />
+                {/* Image Gallery Section (Left/Top) */}
+                <div className="w-full md:w-2/3 bg-black relative flex items-center justify-center overflow-hidden group">
+                  <div className="absolute inset-0 bg-neutral-900/50" />
 
-                {/* Main Image */}
-                <div className="relative w-full h-[40vh] md:h-full flex items-center justify-center p-4 md:p-12">
-                  <img
-                    src={allImages[currentImageIndex] || 'https://via.placeholder.com/800'}
-                    alt={selectedProject.title}
-                    className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                  />
-                </div>
-
-                {/* Navigation Arrows */}
-                {allImages.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-primary transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <ChevronLeft className="w-6 h-6" />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-primary transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <ChevronRight className="w-6 h-6" />
-                    </button>
-
-                    {/* Dots Indicator */}
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                      {allImages.map((_, idx) => (
-                        <div
-                          key={idx}
-                          className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-primary w-6' : 'bg-white/50'}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Details Section (Right/Bottom) */}
-              <div className="w-full md:w-1/3 p-8 flex flex-col bg-card overflow-y-auto custom-scrollbar h-full md:border-l border-border">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm uppercase tracking-widest text-primary font-bold">
-                    {selectedProject.category}
-                  </span>
-                  <button onClick={handleShare} className="p-2 hover:bg-secondary rounded-full transition-colors text-muted-foreground hover:text-primary" title="Copy Link">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
-                  {selectedProject.title}
-                </h2>
-
-                <div className="space-y-8 flex-1">
-                  <div>
-                    <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
-                      <Globe className="w-4 h-4" /> About Project
-                    </h3>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {selectedProject.description}
-                    </p>
+                  {/* Main Image */}
+                  <div className="relative w-full h-[40vh] md:h-full flex items-center justify-center p-4 md:p-12">
+                    <img
+                      src={allImages[currentImageIndex] || 'https://via.placeholder.com/800'}
+                      alt={selectedProject.title}
+                      className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    />
                   </div>
 
-                  {/* Tags */}
-                  {selectedProject.tags && selectedProject.tags.length > 0 && (
-                    <div>
-                      <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
-                        <Layers className="w-4 h-4" /> Tags
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject.tags.map((tag: string, i: number) => (
-                          <span key={i} className="px-3 py-1 bg-secondary hover:bg-secondary/80 rounded-lg text-sm transition-colors border border-transparent hover:border-primary/20">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {/* Navigation Arrows */}
+                  {allImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={prevImage}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-primary transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronLeft className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/50 text-white hover:bg-primary transition-colors opacity-0 group-hover:opacity-100"
+                      >
+                        <ChevronRight className="w-6 h-6" />
+                      </button>
 
-                  {/* Tools */}
-                  {selectedProject.tools && selectedProject.tools.length > 0 && (
-                    <div>
-                      <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
-                        <Code2 className="w-4 h-4" /> Tools Used
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject.tools.map((tool: string, i: number) => (
-                          <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20">
-                            {tool}
-                          </span>
+                      {/* Dots Indicator */}
+                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+                        {allImages.map((_, idx) => (
+                          <div
+                            key={idx}
+                            className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-primary w-6' : 'bg-white/50'}`}
+                          />
                         ))}
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="pt-8 mt-8 border-t border-border flex flex-col gap-3">
-                  {selectedProject.liveUrl && (
-                    <Button size="lg" className="w-full text-base" asChild>
-                      <a href={selectedProject.liveUrl} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" /> Live Preview
-                      </a>
-                    </Button>
-                  )}
-                  {selectedProject.githubUrl && (
-                    <Button size="lg" variant="outline" className="w-full text-base" asChild>
-                      <a href={selectedProject.githubUrl} target="_blank" rel="noopener noreferrer">
-                        <Github className="w-4 h-4 mr-2" /> View Source
-                      </a>
-                    </Button>
-                  )}
+                {/* Details Section (Right/Bottom) */}
+                <div className="w-full md:w-1/3 p-8 flex flex-col bg-card overflow-y-auto custom-scrollbar h-full md:border-l border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm uppercase tracking-widest text-primary font-bold">
+                      {selectedProject.category}
+                    </span>
+                    <button onClick={handleShare} className="p-2 hover:bg-secondary rounded-full transition-colors text-muted-foreground hover:text-primary" title="Copy Link">
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+                    {selectedProject.title}
+                  </h2>
+
+                  <div className="space-y-8 flex-1">
+                    <div>
+                      <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
+                        <Globe className="w-4 h-4" /> About Project
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {selectedProject.description}
+                      </p>
+                    </div>
+
+                    {/* Tags */}
+                    {selectedProject.tags && selectedProject.tags.length > 0 && (
+                      <div>
+                        <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
+                          <Layers className="w-4 h-4" /> Tags
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProject.tags.map((tag: string, i: number) => (
+                            <span key={i} className="px-3 py-1 bg-secondary hover:bg-secondary/80 rounded-lg text-sm transition-colors border border-transparent hover:border-primary/20">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tools */}
+                    {selectedProject.tools && selectedProject.tools.length > 0 && (
+                      <div>
+                        <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
+                          <Code2 className="w-4 h-4" /> Tools Used
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProject.tools.map((tool: string, i: number) => (
+                            <span key={i} className="px-3 py-1 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20">
+                              {tool}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-8 mt-8 border-t border-border flex flex-col gap-3">
+                    {selectedProject.liveUrl && (
+                      <Button size="lg" className="w-full text-base" asChild>
+                        <a href={selectedProject.liveUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4 mr-2" /> Live Preview
+                        </a>
+                      </Button>
+                    )}
+                    {selectedProject.githubUrl && (
+                      <Button size="lg" variant="outline" className="w-full text-base" asChild>
+                        <a href={selectedProject.githubUrl} target="_blank" rel="noopener noreferrer">
+                          <Github className="w-4 h-4 mr-2" /> View Source
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </section>
   );
 }
