@@ -164,7 +164,7 @@ export const storage = {
   getProjects: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('projects');
+        const cached = getCached<any[]>('projects');
         if (cached) return cached;
       }
       const result = await apiCall('/projects');
@@ -208,7 +208,7 @@ export const storage = {
   getPosts: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('posts');
+        const cached = getCached<any[]>('posts');
         if (cached) return cached;
       }
       const result = await apiCall('/posts');
@@ -251,7 +251,7 @@ export const storage = {
   getVideos: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('videos');
+        const cached = getCached<any[]>('videos');
         if (cached) return cached;
       }
       const result = await apiCall('/videos');
@@ -294,7 +294,7 @@ export const storage = {
   getCertificates: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('certificates');
+        const cached = getCached<any[]>('certificates');
         if (cached) return cached;
       }
       const result = await apiCall('/certificates');
@@ -337,7 +337,7 @@ export const storage = {
   getJobs: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('jobs');
+        const cached = getCached<any[]>('jobs');
         if (cached) return cached;
       }
       const result = await apiCall('/jobs');
@@ -380,7 +380,7 @@ export const storage = {
   getReviews: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('reviews');
+        const cached = getCached<any[]>('reviews');
         if (cached) return cached;
       }
       const result = await apiCall('/reviews');
@@ -423,7 +423,7 @@ export const storage = {
   getQAs: async (forceRefresh = false) => {
     try {
       if (!forceRefresh) {
-        const cached = getCached('qas');
+        const cached = getCached<any[]>('qas');
         if (cached) return cached;
       }
       const result = await apiCall('/qas');
