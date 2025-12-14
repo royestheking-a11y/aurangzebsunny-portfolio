@@ -202,7 +202,8 @@ export function Projects() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[9999] bg-background overscroll-none touch-none"
+              className="fixed inset-0 bg-background overscroll-none touch-none"
+              style={{ zIndex: 2147483647 }}
               onClick={handleCloseProject}
             >
               <motion.div
@@ -343,7 +344,7 @@ export function Projects() {
             </motion.div>
           )}
         </AnimatePresence>,
-        document.body
+        document.getElementById('portal-root') || document.body
       )}
     </section>
   );
