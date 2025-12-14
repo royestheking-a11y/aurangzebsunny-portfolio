@@ -16,12 +16,19 @@ import { AuraAssistant } from './components/AuraAssistant';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLogin } from './components/admin/AdminLogin';
 
+
+import { storage } from './utils/storage';
+
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // Initialize Smart Preloading
+    // This fetches fresh data in the background while the user views cached content
+    storage.preloadAll();
+
     const isDark = localStorage.getItem('darkMode') === 'true';
     setDarkMode(isDark);
     if (isDark) {

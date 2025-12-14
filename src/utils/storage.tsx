@@ -1,5 +1,46 @@
 // MongoDB-based data storage via API
 
+// Cache Configuration
+const CACHE_KEY_PREFIX = 'aura_cache_';
+const CACHE_DURATION_MINUTES = 60; // 1 hour cache
+
+// Cache Helper Functions
+const getCached = <T,>(key: string): T | null => {
+  try {
+    const cachedItem = localStorage.getItem(CACHE_KEY_PREFIX + key);
+    if (!cachedItem) return null;
+
+    const { data, timestamp } = JSON.parse(cachedItem);
+    const now = Date.now();
+    const age = (now - timestamp) / (1000 * 60);
+
+    // Return cached data if valid
+    if (age < CACHE_DURATION_MINUTES) {
+      console.log(`⚡ Using Cached Data for: ${key}`);
+      return data;
+    }
+
+    // Clear expired cache
+    localStorage.removeItem(CACHE_KEY_PREFIX + key);
+    return null;
+  } catch (error) {
+    console.error('Cache read error:', error);
+    return null;
+  }
+};
+
+const setCached = (key: string, data: any) => {
+  try {
+    const cacheItem = {
+      data,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(CACHE_KEY_PREFIX + key, JSON.stringify(cacheItem));
+  } catch (error) {
+    console.warn('Cache write error (likely storage full):', error);
+  }
+};
+
 // Auto-detect API URL: use VITE_API_URL if set and valid, otherwise use current origin in production or localhost in development
 const getApiBaseUrl = () => {
   const viteApiUrl = import.meta.env.VITE_API_URL;
@@ -34,7 +75,10 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
     // Ensure endpoint starts with /
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${API_BASE_URL}${cleanEndpoint}`;
-    console.log(`🌐 API Call: ${options.method || 'GET'} ${url}`, { API_BASE_URL, endpoint, cleanEndpoint });
+    // Only log network calls, cached calls are logged in getCached
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`🌐 API Call: ${options.method || 'GET'} ${url}`, { API_BASE_URL, endpoint, cleanEndpoint });
+    }
 
     const response = await fetch(url, {
       ...options,
@@ -70,7 +114,7 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
       }
       try {
         const data = JSON.parse(text);
-        console.log(`✅ API Success: ${endpoint}`);
+        // console.log(`✅ API Success: ${endpoint}`); // Reduce noise
         return data;
       } catch (e) {
         console.error(`❌ JSON parse error for ${endpoint}:`, e);
@@ -93,11 +137,40 @@ async function apiCall(endpoint: string, options: RequestInit = {}) {
 
 // Export storage API
 export const storage = {
-  // Projects
-  getProjects: async () => {
+  // --- Smart Preloading System ---
+  preloadAll: async () => {
+    // This function fetches all critical data in the background to warm up the cache
+    console.log('🚀 Starting Smart Preload System...');
     try {
+      // We run these in parallel, but catch individual errors so one failure doesn't stop others
+      const loaders = [
+        storage.getProjects(true), // force refresh
+        storage.getPosts(true),
+        storage.getVideos(true),
+        storage.getCertificates(true),
+        storage.getJobs(true),
+        storage.getReviews(true),
+        storage.getQAs(true)
+      ];
+
+      await Promise.allSettled(loaders);
+      console.log('✨ Smart Preload Complete: Critical data cached.');
+    } catch (e) {
+      console.error('Preload failed partially:', e);
+    }
+  },
+
+  // Projects
+  getProjects: async (forceRefresh = false) => {
+    try {
+      if (!forceRefresh) {
+        const cached = getCached('projects');
+        if (cached) return cached;
+      }
       const result = await apiCall('/projects');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('projects', data);
+      return data;
     } catch (error) {
       console.error('Error getting projects:', error);
       return [];
@@ -105,30 +178,43 @@ export const storage = {
   },
 
   addProject: async (project: any) => {
-    return await apiCall('/projects', {
+    const res = await apiCall('/projects', {
       method: 'POST',
       body: JSON.stringify(project),
     });
+    // Invalidate cache
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'projects');
+    return res;
   },
 
   updateProject: async (id: string, updates: any) => {
-    return await apiCall(`/projects/${id}`, {
+    const res = await apiCall(`/projects/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'projects');
+    return res;
   },
 
   deleteProject: async (id: string) => {
-    return await apiCall(`/projects/${id}`, {
+    const res = await apiCall(`/projects/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'projects');
+    return res;
   },
 
   // Posts
-  getPosts: async () => {
+  getPosts: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('posts');
+        if (cached) return cached;
+      }
       const result = await apiCall('/posts');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('posts', data);
+      return data;
     } catch (error) {
       console.error('Error getting posts:', error);
       return [];
@@ -136,30 +222,42 @@ export const storage = {
   },
 
   addPost: async (post: any) => {
-    return await apiCall('/posts', {
+    const res = await apiCall('/posts', {
       method: 'POST',
       body: JSON.stringify(post),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'posts');
+    return res;
   },
 
   updatePost: async (id: string, updates: any) => {
-    return await apiCall(`/posts/${id}`, {
+    const res = await apiCall(`/posts/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'posts');
+    return res;
   },
 
   deletePost: async (id: string) => {
-    return await apiCall(`/posts/${id}`, {
+    const res = await apiCall(`/posts/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'posts');
+    return res;
   },
 
   // Videos
-  getVideos: async () => {
+  getVideos: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('videos');
+        if (cached) return cached;
+      }
       const result = await apiCall('/videos');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('videos', data);
+      return data;
     } catch (error) {
       console.error('Error getting videos:', error);
       return [];
@@ -167,30 +265,42 @@ export const storage = {
   },
 
   addVideo: async (video: any) => {
-    return await apiCall('/videos', {
+    const res = await apiCall('/videos', {
       method: 'POST',
       body: JSON.stringify(video),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'videos');
+    return res;
   },
 
   updateVideo: async (id: string, updates: any) => {
-    return await apiCall(`/videos/${id}`, {
+    const res = await apiCall(`/videos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'videos');
+    return res;
   },
 
   deleteVideo: async (id: string) => {
-    return await apiCall(`/videos/${id}`, {
+    const res = await apiCall(`/videos/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'videos');
+    return res;
   },
 
   // Certificates
-  getCertificates: async () => {
+  getCertificates: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('certificates');
+        if (cached) return cached;
+      }
       const result = await apiCall('/certificates');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('certificates', data);
+      return data;
     } catch (error) {
       console.error('Error getting certificates:', error);
       return [];
@@ -198,30 +308,42 @@ export const storage = {
   },
 
   addCertificate: async (cert: any) => {
-    return await apiCall('/certificates', {
+    const res = await apiCall('/certificates', {
       method: 'POST',
       body: JSON.stringify(cert),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'certificates');
+    return res;
   },
 
   updateCertificate: async (id: string, updates: any) => {
-    return await apiCall(`/certificates/${id}`, {
+    const res = await apiCall(`/certificates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'certificates');
+    return res;
   },
 
   deleteCertificate: async (id: string) => {
-    return await apiCall(`/certificates/${id}`, {
+    const res = await apiCall(`/certificates/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'certificates');
+    return res;
   },
 
   // Jobs
-  getJobs: async () => {
+  getJobs: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('jobs');
+        if (cached) return cached;
+      }
       const result = await apiCall('/jobs');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('jobs', data);
+      return data;
     } catch (error) {
       console.error('Error getting jobs:', error);
       return [];
@@ -229,30 +351,42 @@ export const storage = {
   },
 
   addJob: async (job: any) => {
-    return await apiCall('/jobs', {
+    const res = await apiCall('/jobs', {
       method: 'POST',
       body: JSON.stringify(job),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'jobs');
+    return res;
   },
 
   updateJob: async (id: string, updates: any) => {
-    return await apiCall(`/jobs/${id}`, {
+    const res = await apiCall(`/jobs/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'jobs');
+    return res;
   },
 
   deleteJob: async (id: string) => {
-    return await apiCall(`/jobs/${id}`, {
+    const res = await apiCall(`/jobs/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'jobs');
+    return res;
   },
 
   // Reviews
-  getReviews: async () => {
+  getReviews: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('reviews');
+        if (cached) return cached;
+      }
       const result = await apiCall('/reviews');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('reviews', data);
+      return data;
     } catch (error) {
       console.error('Error getting reviews:', error);
       return [];
@@ -260,30 +394,42 @@ export const storage = {
   },
 
   addReview: async (review: any) => {
-    return await apiCall('/reviews', {
+    const res = await apiCall('/reviews', {
       method: 'POST',
       body: JSON.stringify(review),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'reviews');
+    return res;
   },
 
   updateReview: async (id: string, updates: any) => {
-    return await apiCall(`/reviews/${id}`, {
+    const res = await apiCall(`/reviews/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'reviews');
+    return res;
   },
 
   deleteReview: async (id: string) => {
-    return await apiCall(`/reviews/${id}`, {
+    const res = await apiCall(`/reviews/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'reviews');
+    return res;
   },
 
   // Q&A
-  getQAs: async () => {
+  getQAs: async (forceRefresh = false) => {
     try {
+      if (!forceRefresh) {
+        const cached = getCached('qas');
+        if (cached) return cached;
+      }
       const result = await apiCall('/qas');
-      return Array.isArray(result) ? result : [];
+      const data = Array.isArray(result) ? result : [];
+      setCached('qas', data);
+      return data;
     } catch (error) {
       console.error('Error getting QAs:', error);
       return [];
@@ -291,26 +437,32 @@ export const storage = {
   },
 
   addQA: async (qa: any) => {
-    return await apiCall('/qas', {
+    const res = await apiCall('/qas', {
       method: 'POST',
       body: JSON.stringify(qa),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'qas');
+    return res;
   },
 
   updateQA: async (id: string, updates: any) => {
-    return await apiCall(`/qas/${id}`, {
+    const res = await apiCall(`/qas/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updates),
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'qas');
+    return res;
   },
 
   deleteQA: async (id: string) => {
-    return await apiCall(`/qas/${id}`, {
+    const res = await apiCall(`/qas/${id}`, {
       method: 'DELETE',
     });
+    localStorage.removeItem(CACHE_KEY_PREFIX + 'qas');
+    return res;
   },
 
-  // Messages
+  // Messages (No Caching needed usually, but could add if desired. Skipping for now to prioritize content)
   getMessages: async () => {
     try {
       const result = await apiCall('/messages');
@@ -417,3 +569,4 @@ export const storage = {
     });
   },
 };
+
