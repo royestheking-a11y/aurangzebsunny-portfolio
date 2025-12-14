@@ -188,15 +188,15 @@ export function Projects() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-[60] bg-background"
             onClick={handleCloseProject}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="bg-card w-full max-w-6xl max-h-[90vh] rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative border border-white/10"
+              className="w-full h-full flex flex-col md:flex-row relative"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
@@ -250,7 +250,7 @@ export function Projects() {
               </div>
 
               {/* Details Section (Right/Bottom) */}
-              <div className="w-full md:w-1/3 p-8 flex flex-col bg-card overflow-y-auto custom-scrollbar h-[50vh] md:h-auto">
+              <div className="w-full md:w-1/3 p-8 flex flex-col bg-card overflow-y-auto custom-scrollbar h-full md:border-l border-border">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm uppercase tracking-widest text-primary font-bold">
                     {selectedProject.category}
