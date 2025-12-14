@@ -342,7 +342,7 @@ export function Projects() {
                           <Share2 className="w-4 h-4 mr-2" /> Share Project
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuContent align="end" className="w-56" style={{ zIndex: 2147483647 }}>
                         <DropdownMenuItem onClick={() => {
                           const url = encodeURIComponent(window.location.href);
                           window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
