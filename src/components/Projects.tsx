@@ -39,6 +39,18 @@ export function Projects() {
     }
   }, [projects]);
 
+  // Lock body scroll when project is open
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedProject]);
+
   const handleOpenProject = (project: any) => {
     setSelectedProject(project);
     setCurrentImageIndex(0);
@@ -188,7 +200,7 @@ export function Projects() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-background"
+            className="fixed inset-0 z-[100] bg-background"
             onClick={handleCloseProject}
           >
             <motion.div
