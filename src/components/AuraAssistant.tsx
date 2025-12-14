@@ -393,7 +393,7 @@ export function AuraAssistant() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-4 left-4 md:left-auto md:right-6 md:w-[400px] h-[600px] max-h-[80vh] bg-card border-2 border-primary/20 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
+            className="fixed bottom-6 right-4 left-4 md:left-auto md:right-6 md:w-[320px] h-[600px] max-h-[80vh] bg-card border-2 border-primary/20 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary to-accent text-white p-4 flex items-center justify-between">

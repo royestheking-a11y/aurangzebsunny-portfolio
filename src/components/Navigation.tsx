@@ -10,18 +10,18 @@ interface NavigationProps {
   toggleDarkMode: () => void;
 }
 
+const menuItems = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'reviews', label: 'Reviews' },
+  { id: 'qa', label: 'Q&A' },
+];
+
 export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const menuItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About' },
-    { id: 'projects', label: 'Projects' },
-    { id: 'reviews', label: 'Reviews' },
-    { id: 'qa', label: 'Q&A' },
-  ];
 
   const activeSection = useActiveSection(menuItems.map(item => item.id));
 
