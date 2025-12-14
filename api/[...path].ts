@@ -128,12 +128,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(item);
       }
       if (method === 'PUT' && id) {
-        const { _id, ...updates } = req.body;
-        const updateData = { ...updates, updatedAt: new Date().toISOString() };
-        const updateResult = await collection.updateOne({ id }, { $set: updateData });
-        if (updateResult.matchedCount === 0) {
+        // Find existing project to check for image changes
+        const existing = await collection.findOne({ id });
+        if (!existing) {
           return res.status(404).json({ error: 'Project not found' });
         }
+
+        // If image changed, delete old image
+        if (req.body.image && existing.image && req.body.image !== existing.image) {
+          await deleteImage(existing.image);
+        }
+
+        const { _id, ...updates } = req.body;
+        const updateData = { ...updates, updatedAt: new Date().toISOString() };
+        await collection.updateOne({ id }, { $set: updateData });
+        // Removed the check for matchedCount as we already verified existence
         const updated = await collection.findOne({ id });
         return res.json(updated);
       }
@@ -165,12 +174,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(item);
       }
       if (method === 'PUT' && id) {
-        const { _id, ...updates } = req.body;
-        const updateData = { ...updates, updatedAt: new Date().toISOString() };
-        const updateResult = await collection.updateOne({ id }, { $set: updateData });
-        if (updateResult.matchedCount === 0) {
+        const existing = await collection.findOne({ id });
+        if (!existing) {
           return res.status(404).json({ error: 'Post not found' });
         }
+
+        if (req.body.image && existing.image && req.body.image !== existing.image) {
+          await deleteImage(existing.image);
+        }
+
+        const { _id, ...updates } = req.body;
+        const updateData = { ...updates, updatedAt: new Date().toISOString() };
+        await collection.updateOne({ id }, { $set: updateData });
         const updated = await collection.findOne({ id });
         return res.json(updated);
       }
@@ -202,12 +217,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(item);
       }
       if (method === 'PUT' && id) {
-        const { _id, ...updates } = req.body;
-        const updateData = { ...updates, updatedAt: new Date().toISOString() };
-        const updateResult = await collection.updateOne({ id }, { $set: updateData });
-        if (updateResult.matchedCount === 0) {
+        const existing = await collection.findOne({ id });
+        if (!existing) {
           return res.status(404).json({ error: 'Video not found' });
         }
+
+        if (req.body.thumbnail && existing.thumbnail && req.body.thumbnail !== existing.thumbnail) {
+          await deleteImage(existing.thumbnail);
+        }
+
+        const { _id, ...updates } = req.body;
+        const updateData = { ...updates, updatedAt: new Date().toISOString() };
+        await collection.updateOne({ id }, { $set: updateData });
         const updated = await collection.findOne({ id });
         return res.json(updated);
       }
@@ -238,6 +259,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         };
         await collection.insertOne(item);
         return res.json(item);
+      }
+      if (method === 'PUT' && id) {
+        const existing = await collection.findOne({ id });
+        if (!existing) {
+          return res.status(404).json({ error: 'Certificate not found' });
+        }
+
+        if (req.body.image && existing.image && req.body.image !== existing.image) {
+          await deleteImage(existing.image);
+        }
+
+        const { _id, ...updates } = req.body;
+        const updateData = { ...updates, updatedAt: new Date().toISOString() };
+        await collection.updateOne({ id }, { $set: updateData });
+        const updated = await collection.findOne({ id });
+        return res.json(updated);
       }
       if (method === 'DELETE' && id) {
         const cert = await collection.findOne({ id });
@@ -296,6 +333,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         };
         await collection.insertOne(item);
         return res.json(item);
+      }
+      if (method === 'PUT' && id) {
+        const existing = await collection.findOne({ id });
+        if (!existing) {
+          return res.status(404).json({ error: 'Review not found' });
+        }
+
+        // Reviews use 'avatar', not 'image'
+        if (req.body.avatar && existing.avatar && req.body.avatar !== existing.avatar) {
+          await deleteImage(existing.avatar);
+        }
+
+        const { _id, ...updates } = req.body;
+        const updateData = { ...updates, updatedAt: new Date().toISOString() };
+        await collection.updateOne({ id }, { $set: updateData });
+        const updated = await collection.findOne({ id });
+        return res.json(updated);
       }
       if (method === 'DELETE' && id) {
         const review = await collection.findOne({ id });
