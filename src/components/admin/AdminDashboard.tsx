@@ -1127,11 +1127,26 @@ function VideosView({ data, loading, onRefresh }: any) {
 // Certificates View
 function CertificatesView({ data, loading, onRefresh }: any) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
   const handleAdd = () => {
-    setFormData({ title: '', issuer: '', date: '', image: '', credentialUrl: '' });
+    setEditingItem(null);
+    setFormData({
+      title: '',
+      issuer: '',
+      date: '',
+      image: '',
+      credentialUrl: '',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleEdit = (item: any) => {
+    const { _id, ...itemData } = item;
+    setEditingItem(item);
+    setFormData(itemData);
     setIsDialogOpen(true);
   };
 
@@ -1143,9 +1158,15 @@ function CertificatesView({ data, loading, onRefresh }: any) {
 
     setSaving(true);
     try {
-      await storage.addCertificate(formData);
-      toast.success('Certificate added successfully!');
+      if (editingItem) {
+        await storage.updateCertificate(editingItem.id, formData);
+        toast.success('Certificate updated successfully!');
+      } else {
+        await storage.addCertificate(formData);
+        toast.success('Certificate added successfully!');
+      }
       setIsDialogOpen(false);
+      setEditingItem(null);
       setFormData({});
       await onRefresh();
     } catch (error: any) {
@@ -1202,13 +1223,18 @@ function CertificatesView({ data, loading, onRefresh }: any) {
               )}
               <h3 className="text-xl mb-2">{cert.title}</h3>
               <p className="text-sm text-muted-foreground mb-4">{cert.issuer}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDelete(cert.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(cert)}>
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDelete(cert.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           ))}
         </div>
@@ -1217,9 +1243,9 @@ function CertificatesView({ data, loading, onRefresh }: any) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Certificate</DialogTitle>
+            <DialogTitle>{editingItem ? 'Edit Certificate' : 'Add Certificate'}</DialogTitle>
             <DialogDescription>
-              Add a new professional certificate or achievement to showcase your credentials.
+              {editingItem ? 'Update your certificate details.' : 'Add a new professional certificate or achievement to showcase your credentials.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -1455,10 +1481,12 @@ function JobsView({ data, loading, onRefresh }: any) {
 // Reviews View
 function ReviewsView({ data, loading, onRefresh }: any) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
 
   const handleAdd = () => {
+    setEditingItem(null);
     setFormData({
       name: '',
       role: '',
@@ -1470,6 +1498,13 @@ function ReviewsView({ data, loading, onRefresh }: any) {
     setIsDialogOpen(true);
   };
 
+  const handleEdit = (item: any) => {
+    const { _id, ...itemData } = item;
+    setEditingItem(item);
+    setFormData(itemData);
+    setIsDialogOpen(true);
+  };
+
   const handleSave = async () => {
     if (!formData.name || !formData.review || !formData.rating) {
       toast.error('Please fill in required fields (Name, Review, and Rating)');
@@ -1477,10 +1512,17 @@ function ReviewsView({ data, loading, onRefresh }: any) {
     }
 
     setSaving(true);
+    setSaving(true);
     try {
-      await storage.addReview(formData);
-      toast.success('Review added successfully!');
+      if (editingItem) {
+        await storage.updateReview(editingItem.id, formData);
+        toast.success('Review updated successfully!');
+      } else {
+        await storage.addReview(formData);
+        toast.success('Review added successfully!');
+      }
       setIsDialogOpen(false);
+      setEditingItem(null);
       setFormData({});
       await onRefresh();
     } catch (error: any) {
@@ -1542,18 +1584,23 @@ function ReviewsView({ data, loading, onRefresh }: any) {
                     {review.role} at {review.company}
                   </p>
                   <p className="text-muted-foreground mb-4">{review.review}</p>
-                  <div className="flex gap-1 mb-4">
+                  <div className="flex gap-2 mb-4">
                     {[...Array(review.rating)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />
                     ))}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(review.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(review)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(review.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1564,9 +1611,9 @@ function ReviewsView({ data, loading, onRefresh }: any) {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Review</DialogTitle>
+            <DialogTitle>{editingItem ? 'Edit Review' : 'Add Review'}</DialogTitle>
             <DialogDescription>
-              Add a client testimonial or review to showcase your work quality.
+              {editingItem ? 'Update the client review details.' : 'Add a client testimonial or review to showcase your work quality.'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

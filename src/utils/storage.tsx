@@ -204,6 +204,13 @@ export const storage = {
     });
   },
 
+  updateCertificate: async (id: string, updates: any) => {
+    return await apiCall(`/certificates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  },
+
   deleteCertificate: async (id: string) => {
     return await apiCall(`/certificates/${id}`, {
       method: 'DELETE',
@@ -256,6 +263,13 @@ export const storage = {
     return await apiCall('/reviews', {
       method: 'POST',
       body: JSON.stringify(review),
+    });
+  },
+
+  updateReview: async (id: string, updates: any) => {
+    return await apiCall(`/reviews/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
     });
   },
 

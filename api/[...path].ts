@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { connectToDatabase, getDatabase } from './_helpers/db';
 import { handleCors, setCorsHeaders } from './_helpers/cors';
+import { deleteImage } from './_helpers/cloudinary';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Handle CORS preflight
@@ -8,19 +9,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     setCorsHeaders(res);
     return res.status(200).end();
   }
-  
+
   setCorsHeaders(res);
 
   try {
     await connectToDatabase();
     const db = getDatabase();
-    
+
     const method = req.method;
-    
+
     // Get path from query parameter (Vercel catch-all route)
     // In Vercel, catch-all routes pass path segments as req.query.path array
     let pathParts: string[] = [];
-    
+
     if (req.query.path) {
       if (Array.isArray(req.query.path)) {
         pathParts = req.query.path as string[];
@@ -28,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         pathParts = [req.query.path];
       }
     }
-    
+
     // Fallback: parse from URL if path is empty or not found
     if (pathParts.length === 0) {
       const url = req.url || '';
@@ -48,18 +49,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
     }
-    
+
     const resource = pathParts[0] || '';
     const id = pathParts[1];
-    
+
     // Debug logging
-    console.log('API Request:', { 
-      method, 
-      pathParts, 
-      resource, 
-      id, 
+    console.log('API Request:', {
+      method,
+      pathParts,
+      resource,
+      id,
       url: req.url,
-      query: req.query 
+      query: req.query
     });
 
     // Health check
@@ -137,6 +138,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(updated);
       }
       if (method === 'DELETE' && id) {
+        // Find project first to get image URL
+        const project = await collection.findOne({ id });
+        if (project && project.image) {
+          await deleteImage(project.image);
+        }
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
@@ -169,6 +175,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(updated);
       }
       if (method === 'DELETE' && id) {
+        // Find post first to get image URL
+        const post = await collection.findOne({ id });
+        if (post && post.image) {
+          await deleteImage(post.image);
+        }
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
@@ -201,6 +212,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(updated);
       }
       if (method === 'DELETE' && id) {
+        // Find video document - theoretically might have thumbnail if schema changes
+        // Currently videos might not have images to delete depending on schema, but adding safety check
+        const video = await collection.findOne({ id });
+        if (video && video.thumbnail) {
+          await deleteImage(video.thumbnail);
+        }
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
@@ -223,6 +240,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(item);
       }
       if (method === 'DELETE' && id) {
+        const cert = await collection.findOne({ id });
+        if (cert && cert.image) {
+          await deleteImage(cert.image);
+        }
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
@@ -277,6 +298,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.json(item);
       }
       if (method === 'DELETE' && id) {
+        const review = await collection.findOne({ id });
+        if (review && review.avatar) {
+          await deleteImage(review.avatar);
+        }
         await collection.deleteOne({ id });
         return res.json({ success: true });
       }
