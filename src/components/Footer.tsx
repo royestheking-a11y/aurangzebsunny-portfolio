@@ -53,7 +53,7 @@ export function Footer() {
       // 2. Save newsletter subscription to MongoDB
       await storage.addNewsletterSubscription(email);
 
-      toast.success('🎉 Successfully subscribed! Check your inbox for confirmation.');
+      toast.success('🎉 Welcome to the family! Check your inbox.');
       setEmail('');
     } catch (error) {
       console.error('Newsletter error:', error);

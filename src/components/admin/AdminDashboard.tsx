@@ -203,19 +203,24 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       <main className="flex-1 p-6 z-10 overflow-y-auto h-screen custom-scrollbar">
         <div className="max-w-[1600px] mx-auto space-y-8">
           {/* Header for Mobile/Title */}
-          <div className="flex items-center justify-between mb-8 md:hidden">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <LayoutDashboard className="w-4 h-4 text-white" />
+          <div className="flex flex-col gap-4 mb-8 md:hidden">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <LayoutDashboard className="w-4 h-4 text-white" />
+                </div>
+                <h1 className="text-xl font-bold">Admin</h1>
               </div>
-              <h1 className="text-xl font-bold">Admin</h1>
+              <div className="flex gap-2">
+                <Button size="icon" variant="outline" className="bg-card/50" onClick={() => setIsMobileMenuOpen(true)}>
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button size="icon" variant="outline" className="bg-card/50" onClick={() => setIsMobileMenuOpen(true)}>
-                <Menu className="w-5 h-5" />
-              </Button>
-            </div>
+            {/* Mobile Clock */}
+            <LiveClock />
           </div>
+
           {/* Desktop Header with Clock */}
           <div className="hidden md:flex items-center justify-between mb-2">
             <div>
@@ -2081,13 +2086,19 @@ function NewsletterView({ data, loading, onRefresh }: any) {
             <div key={subscription.id} className="bg-card p-6 rounded-xl border border-border">
               <h3 className="text-xl mb-2">{subscription.email}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Subscribed: {subscription.createdAt ? new Date(subscription.createdAt).toLocaleDateString('en-US', {
+                Subscribed: {subscription.subscribedAt ? new Date(subscription.subscribedAt).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
-                }) : 'Date unknown'}
+                }) : (subscription.createdAt ? new Date(subscription.createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : 'Date unknown')}
               </p>
               <Button
                 variant="outline"
