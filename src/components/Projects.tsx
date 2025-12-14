@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Github, Star, X, ChevronLeft, ChevronRight, Share2, Globe, Layers, Code2 } from 'lucide-react';
+import { ExternalLink, Github, Star, X, ChevronLeft, ChevronRight, Share2, Globe, Layers, Code2, Facebook, Twitter, Instagram, Link as LinkIcon } from 'lucide-react';
 import { storage } from '../utils/storage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { toast } from 'sonner';
 
 export function Projects() {
@@ -270,9 +271,6 @@ export function Projects() {
                     <span className="text-sm uppercase tracking-widest text-primary font-bold">
                       {selectedProject.category}
                     </span>
-                    <button onClick={handleShare} className="p-2 hover:bg-secondary rounded-full transition-colors text-muted-foreground hover:text-primary" title="Copy Link">
-                      <Share2 className="w-5 h-5" />
-                    </button>
                   </div>
 
                   <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
@@ -338,6 +336,40 @@ export function Projects() {
                         </a>
                       </Button>
                     )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="lg" variant="secondary" className="w-full text-base">
+                          <Share2 className="w-4 h-4 mr-2" /> Share Project
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem onClick={() => {
+                          const url = encodeURIComponent(window.location.href);
+                          window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                        }}>
+                          <Facebook className="d-4 h-4 mr-2" /> Facebook
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          const url = encodeURIComponent(window.location.href);
+                          const text = encodeURIComponent(`Check out this project: ${selectedProject.title}`);
+                          window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+                        }}>
+                          <Twitter className="w-4 h-4 mr-2" /> X (Twitter)
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success('Link copied! Open Instagram to share.');
+                        }}>
+                          <Instagram className="w-4 h-4 mr-2" /> Instagram
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success('Link copied to clipboard!');
+                        }}>
+                          <LinkIcon className="w-4 h-4 mr-2" /> Copy Link
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </motion.div>
