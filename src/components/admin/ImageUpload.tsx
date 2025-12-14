@@ -5,6 +5,12 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { toast } from 'sonner';
 
+declare global {
+    interface Window {
+        cloudinary: any;
+    }
+}
+
 interface ImageUploadProps {
     value: string;
     onChange: (url: string) => void;
@@ -51,28 +57,56 @@ export function ImageUpload({
         }
     };
 
+    const handleUpload = () => {
+        if (!window.cloudinary) {
+            toast.error("Cloudinary widget not loaded. Please check your script tag.");
+            return;
+        }
+
+        const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "do5jdaaef";
+        const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "AurangPortfolio";
+
+        setLoading(true);
+
+        const widget = window.cloudinary.createUploadWidget(
+            {
+                cloudName: cloudName,
+                uploadPreset: uploadPreset,
+                cropping: true,
+                croppingAspectRatio: aspectRatio,
+                croppingShowDimensions: true,
+                croppingValidateDimensions: true,
+                showSkipCropButton: false,
+                sources: ['local', 'url', 'camera'],
+                clientAllowedFormats: ['png', 'jpeg', 'jpg', 'webp'],
+                maxImageFileSize: 5000000, // 5MB
+                maxImageWidth: maxWidth,
+                maxImageHeight: maxHeight,
+                folder: 'portfolio_uploads', // Optional: specify a folder
+            },
+            (error: any, result: any) => {
+                if (result?.event === 'close') {
+                    setLoading(false);
+                }
+                if (error) {
+                    console.error('Cloudinary upload error:', error);
+                    toast.error('Image upload failed.');
+                    setLoading(false);
+                } else if (result.event === 'success') {
+                    const imageUrl = result.info.secure_url;
+                    onChange(imageUrl);
+                    setPreview(imageUrl);
+                    toast.success('Image uploaded successfully!');
+                    setLoading(false);
+                }
+            }
+        );
+
+        widget.open();
+    };
+
     return (
         <div className="space-y-4">
-            {/* Input Type Toggle (Hidden for now as we focus on URL, but structure is ready) */}
-            <div className="flex bg-muted/50 p-1 rounded-lg w-fit hidden">
-                <button
-                    type="button"
-                    onClick={() => setInputType('url')}
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${inputType === 'url' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                >
-                    Image URL
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setInputType('file')}
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${inputType === 'file' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                >
-                    Upload
-                </button>
-            </div>
-
             {preview ? (
                 <div className="relative group rounded-xl overflow-hidden border border-border/50 bg-black/20">
                     <div
@@ -83,7 +117,6 @@ export function ImageUpload({
                             src={preview}
                             alt="Preview"
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            onError={handleImageError}
                         />
 
                         {/* Overlay Actions */}
@@ -97,51 +130,33 @@ export function ImageUpload({
                             >
                                 <X className="h-4 w-4" />
                             </Button>
-                            <a
-                                href={preview}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="h-9 w-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors"
-                            >
-                                <LinkIcon className="h-4 w-4" />
-                            </a>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="border-2 border-dashed border-border/50 rounded-xl p-8 transition-colors hover:border-primary/50 hover:bg-primary/5 group">
+                <div
+                    onClick={handleUpload}
+                    className="cursor-pointer border-2 border-dashed border-border/50 rounded-xl p-8 transition-colors hover:border-primary/50 hover:bg-primary/5 group relative"
+                >
+                    {loading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10 rounded-xl">
+                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                        </div>
+                    )}
                     <div className="flex flex-col items-center justify-center text-center space-y-4">
                         <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                             <ImageIcon className="h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="font-semibold text-lg">Add an Image</h3>
+                            <h3 className="font-semibold text-lg">Click to Upload</h3>
                             <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                                Paste an image URL below to preview
+                                Upload image via Cloudinary
                             </p>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* URL Input */}
-            <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    <LinkIcon className="h-4 w-4" />
-                </div>
-                <Input
-                    value={value || ''} // Handle null/undefined
-                    onChange={handleUrlChange}
-                    placeholder="https://example.com/image.jpg"
-                    className="pl-9 bg-background/50 border-white/10 focus:border-primary/50 transition-all font-mono text-xs"
-                />
-            </div>
-
-            {/* Helper text */}
-            <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase tracking-wider">
-                <span>Supported: JPG, PNG, WEBP</span>
-                <span>Aspect Ratio: {aspectRatio}:1</span>
-            </div>
         </div>
     );
 }

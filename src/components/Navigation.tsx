@@ -74,7 +74,7 @@ export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex-shrink-0 z-50">
-            <h1 className="text-2xl gradient-text cursor-pointer uppercase tracking-wide" onClick={() => scrollToSection('home')}>
+            <h1 className="text-xl md:text-2xl gradient-text cursor-pointer uppercase tracking-wide" onClick={() => scrollToSection('home')}>
               Aurangzeb Sunny
             </h1>
           </div>

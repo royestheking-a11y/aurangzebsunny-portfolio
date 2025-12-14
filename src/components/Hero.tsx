@@ -114,7 +114,9 @@ export function Hero() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl sm:text-6xl lg:text-7xl mb-8 text-foreground leading-tight">
-            Best Full Stack Web Developer in Bangladesh
+            Design With Purpose,
+            <br />
+            Develop With Passion.
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto mb-10 leading-relaxed">

@@ -21,7 +21,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
 
     // Simulate a brief loading state for better UX
     setTimeout(() => {
-      if (username === 'aurangzebsunny' && password === 'sunny878') {
+      if (username.trim() === 'aurangzebsunny' && password.trim() === 'sunny878') {
         localStorage.setItem('admin_authenticated', 'true');
         onLogin();
       } else {
@@ -130,6 +130,9 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
                     className="pl-12 h-11 bg-white/5 border-white/10 focus:border-primary/50 focus:bg-white/10 transition-all rounded-xl"
                     placeholder="Enter username"
                     disabled={loading}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                 </div>
               </div>
@@ -145,6 +148,9 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
                     className="pl-12 h-11 bg-white/5 border-white/10 focus:border-primary/50 focus:bg-white/10 transition-all rounded-xl"
                     placeholder="Enter password"
                     disabled={loading}
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                 </div>
               </div>

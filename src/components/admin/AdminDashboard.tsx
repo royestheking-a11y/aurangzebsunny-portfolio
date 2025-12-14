@@ -172,7 +172,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20">
                 <LayoutDashboard className="w-4 h-4 text-white" />
               </div>
-              <h1 className="font-bold text-sm">Custom Software & <span className="text-primary font-light">Admin Dashboard</span></h1>
+              <h1 className="font-bold text-sm">Aurangzeb <span className="text-primary font-light"> Dashboard</span></h1>
             </div>
             <Button size="icon" variant="ghost" onClick={() => setIsMobileMenuOpen(false)}>
               <X className="w-6 h-6" />
@@ -382,9 +382,11 @@ function ProjectsView({ data, loading, onRefresh }: any) {
       title: '',
       description: '',
       image: '',
+      gallery: [], // For multiple screenshots
       category: 'UI/UX Design',
       featured: false,
       tags: [],
+      tools: [],
       liveUrl: '',
       githubUrl: '',
     });
@@ -395,7 +397,12 @@ function ProjectsView({ data, loading, onRefresh }: any) {
     // Remove _id from item before setting form data
     const { _id, ...itemData } = item;
     setEditingItem(item);
-    setFormData(itemData);
+    setFormData({
+      ...itemData,
+      gallery: itemData.gallery || [],
+      tags: itemData.tags || [],
+      tools: itemData.tools || []
+    });
     setIsDialogOpen(true);
   };
 
@@ -407,11 +414,19 @@ function ProjectsView({ data, loading, onRefresh }: any) {
 
     setSaving(true);
     try {
+      // Clean up arrays (remove empty strings/spaces)
+      const cleanFormData = {
+        ...formData,
+        tags: Array.isArray(formData.tags) ? formData.tags.map((t: string) => t.trim()).filter(Boolean) : [],
+        tools: Array.isArray(formData.tools) ? formData.tools.map((t: string) => t.trim()).filter(Boolean) : [],
+        gallery: Array.isArray(formData.gallery) ? formData.gallery.filter(Boolean) : []
+      };
+
       if (editingItem) {
-        await storage.updateProject(editingItem.id, formData);
+        await storage.updateProject(editingItem.id, cleanFormData);
         toast.success('Project updated successfully!');
       } else {
-        await storage.addProject(formData);
+        await storage.addProject(cleanFormData);
         toast.success('Project created successfully!');
       }
       setIsDialogOpen(false);
@@ -437,6 +452,11 @@ function ProjectsView({ data, loading, onRefresh }: any) {
         toast.error(`Failed to delete project: ${error.message || 'Unknown error'}`);
       }
     }
+  };
+
+  // Helper to handle array inputs (tags/tools) from string
+  const handleArrayInput = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value.split(',') });
   };
 
   if (loading) {
@@ -493,82 +513,161 @@ function ProjectsView({ data, loading, onRefresh }: any) {
 
       {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingItem ? 'Edit Project' : 'Add Project'}</DialogTitle>
-            <DialogDescription>
-              {editingItem ? 'Update the project details below.' : 'Fill in the details to create a new project.'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={formData.title || ''}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label>Category</Label>
-              <select
-                className="w-full p-2 rounded-md border border-input bg-background"
-                value={formData.category || ''}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              >
-                <option value="UI/UX Design">UI/UX Design</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Mobile App">Mobile App</option>
-                <option value="Branding">Branding</option>
-              </select>
-            </div>
-            <div>
-              <Label>Image URL</Label>
-              <ImageUpload
-                value={formData.image || ''}
-                onChange={(url: string) => setFormData({ ...formData, image: url })}
-                aspectRatio={16 / 9}
-                maxWidth={800}
-                maxHeight={450}
-              />
-            </div>
-            <div>
-              <Label>Live URL (optional)</Label>
-              <Input
-                value={formData.liveUrl || ''}
-                onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
-                placeholder="https://..."
-              />
-            </div>
-            <div>
-              <Label>GitHub URL (optional)</Label>
-              <Input
-                value={formData.githubUrl || ''}
-                onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
-                placeholder="https://github.com/..."
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.featured || false}
-                onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-              />
-              <Label>Featured Project</Label>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save'}
-              </Button>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
-                Cancel
-              </Button>
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <div className="p-6 pb-4 border-b bg-background/95 backdrop-blur z-10">
+            <DialogHeader className="p-0">
+              <DialogTitle>{editingItem ? 'Edit Project' : 'Add Project'}</DialogTitle>
+              <DialogDescription>
+                {editingItem ? 'Update the project details below.' : 'Fill in the details to create a new project.'}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Title</Label>
+                  <Input
+                    value={formData.title || ''}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Project Name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <select
+                    className="w-full p-2 h-10 rounded-md border border-input bg-background"
+                    value={formData.category || ''}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="Branding">Branding</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  className="min-h-[100px]"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Detailed project description..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Main Thumbnail (Cover Image)</Label>
+                <ImageUpload
+                  value={formData.image || ''}
+                  onChange={(url: string) => setFormData({ ...formData, image: url })}
+                  aspectRatio={16 / 9}
+                  maxWidth={800}
+                  maxHeight={450}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Project Gallery (Screenshots)</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, gallery: [...(formData.gallery || []), ''] })}
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Add Image
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {(formData.gallery || []).map((url: string, index: number) => (
+                    <div key={index} className="relative group">
+                      <ImageUpload
+                        value={url}
+                        onChange={(newUrl: string) => {
+                          const newGallery = [...formData.gallery];
+                          newGallery[index] = newUrl;
+                          setFormData({ ...formData, gallery: newGallery });
+                        }}
+                        aspectRatio={16 / 9}
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          const newGallery = formData.gallery.filter((_: any, i: number) => i !== index);
+                          setFormData({ ...formData, gallery: newGallery });
+                        }}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Tags (comma separated)</Label>
+                  <Input
+                    value={Array.isArray(formData.tags) ? formData.tags.join(',') : ''}
+                    onChange={(e) => handleArrayInput('tags', e.target.value)}
+                    placeholder="React, TypeScript, Redux..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tools Used (comma separated)</Label>
+                  <Input
+                    value={Array.isArray(formData.tools) ? formData.tools.join(',') : ''}
+                    onChange={(e) => handleArrayInput('tools', e.target.value)}
+                    placeholder="Figma, VS Code, Vercel..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Live URL</Label>
+                  <Input
+                    value={formData.liveUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, liveUrl: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>GitHub URL</Label>
+                  <Input
+                    value={formData.githubUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, githubUrl: e.target.value })}
+                    placeholder="https://github.com/..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  checked={formData.featured || false}
+                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                />
+                <Label htmlFor="featured" className="cursor-pointer">Featured Project (Show on Home)</Label>
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t">
+                <Button onClick={handleSave} disabled={saving} className="flex-1">
+                  {saving ? 'Saving...' : 'Save Project'}
+                </Button>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={saving}>
+                  Cancel
+                </Button>
+              </div>
             </div>
           </div>
         </DialogContent>

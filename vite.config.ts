@@ -14,7 +14,8 @@ export default defineConfig({
         name: 'Aurangzeb Sunny - Portfolio',
         short_name: 'Sunny Portfolio',
         description: 'Personal Portfolio of Aurangzeb Sunny',
-        theme_color: '#ffffff',
+        theme_color: '#000000',
+        background_color: '#000000',
         icons: [
           {
             src: 'pwa-192x192.png',
