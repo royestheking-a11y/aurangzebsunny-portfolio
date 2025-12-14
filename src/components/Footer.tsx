@@ -3,7 +3,8 @@ import { Linkedin, Github, Instagram, Mail, Lock, Send, ArrowRight } from 'lucid
 import { storage } from '../utils/storage';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
+import emailjs from '@emailjs/browser';
 
 export function Footer() {
   const [socialLinks, setSocialLinks] = useState<any>({});
@@ -11,6 +12,7 @@ export function Footer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    emailjs.init("rY7fwl06URv1eEY1Z");
     loadSocialLinks();
   }, []);
 
@@ -33,14 +35,26 @@ export function Footer() {
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      // Save newsletter subscription to MongoDB
+      // 1. Send Auto-Reply via EmailJS
+      await emailjs.send(
+        "service_tp6i5hq",
+        "template_90mw91f",
+        {
+          name: "Friend",
+          to_email: email,
+          email: email
+        }
+      );
+
+      // 2. Save newsletter subscription to MongoDB
       await storage.addNewsletterSubscription(email);
-      
+
       toast.success('🎉 Successfully subscribed! Check your inbox for confirmation.');
       setEmail('');
     } catch (error) {
+      console.error('Newsletter error:', error);
       toast.error('Failed to subscribe. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -58,7 +72,7 @@ export function Footer() {
     <footer className="bg-card border-t-2 border-primary/20 relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Left Column - Branding */}
@@ -152,11 +166,11 @@ export function Footer() {
                   <p className="text-xs text-muted-foreground">Get exclusive updates</p>
                 </div>
               </div>
-              
+
               <p className="text-sm text-muted-foreground mb-4">
                 Join our community for exclusive insights and project updates.
               </p>
-              
+
               <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-2">
                 <div className="flex-1 relative group">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -188,7 +202,7 @@ export function Footer() {
                   )}
                 </Button>
               </form>
-              
+
               <p className="text-xs text-muted-foreground mt-3">
                 🔒 We respect your privacy. Unsubscribe anytime.
               </p>
@@ -208,7 +222,7 @@ export function Footer() {
               <Lock className="w-4 h-4 group-hover:rotate-12 transition-transform" />
               Admin Login
             </button>
-            
+
             <p className="text-sm text-muted-foreground text-center">
               © 2025 Crafted with ❤️ by{' '}
               <span className="text-primary gradient-text">Aurangzeb Sunny</span>

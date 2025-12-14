@@ -216,6 +216,16 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               </Button>
             </div>
           </div>
+          {/* Desktop Header with Clock */}
+          <div className="hidden md:flex items-center justify-between mb-2">
+            <div>
+              <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                Admin Portal
+              </h2>
+            </div>
+            <LiveClock />
+          </div>
+
           {/* Only show title on desktop if needed, usually nav handles context */}
 
           {/* Content Switcher */}
@@ -2071,13 +2081,13 @@ function NewsletterView({ data, loading, onRefresh }: any) {
             <div key={subscription.id} className="bg-card p-6 rounded-xl border border-border">
               <h3 className="text-xl mb-2">{subscription.email}</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Subscribed: {new Date(subscription.createdAt).toLocaleDateString('en-US', {
+                Subscribed: {subscription.createdAt ? new Date(subscription.createdAt).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   year: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
-                })}
+                }) : 'Date unknown'}
               </p>
               <Button
                 variant="outline"
@@ -2221,6 +2231,32 @@ function SettingsView() {
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function LiveClock() {
+  const [date, setDate] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setDate(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-4 bg-card/50 px-4 py-2 rounded-xl border border-white/10 backdrop-blur-sm shadow-sm hover:bg-card/70 transition-colors">
+      <div className="text-right hidden sm:block">
+        <p className="text-sm font-bold text-foreground font-mono tabular-nums tracking-tight">
+          {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+          {date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+        </p>
+      </div>
+      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center relative overflow-hidden group hover:scale-105 transition-transform">
+        <div className="absolute inset-0 bg-primary/20 animate-pulse" />
+        <div className="relative w-2 h-2 bg-primary rounded-full shadow-[0_0_15px_rgba(var(--primary),0.8)]" />
       </div>
     </div>
   );
