@@ -644,7 +644,7 @@ app.post('/api/upload/resume', upload.single('file'), async (req: Request, res: 
             updatedAt: new Date().toISOString(),
           },
           // Also set the regular resumeUrl to point to our download endpoint
-          resumeUrl: '/api/resume/download',
+          resumeUrl: '/api/download-resume',
         }
       },
       { upsert: true }
@@ -652,7 +652,7 @@ app.post('/api/upload/resume', upload.single('file'), async (req: Request, res: 
 
     res.json({
       success: true,
-      url: '/api/resume/download',
+      url: '/api/download-resume',
       message: 'Resume uploaded successfully'
     });
   } catch (error: any) {
@@ -662,7 +662,7 @@ app.post('/api/upload/resume', upload.single('file'), async (req: Request, res: 
 });
 
 // Download Resume
-app.get('/api/resume/download', async (req: Request, res: Response) => {
+app.get('/api/download-resume', async (req: Request, res: Response) => {
   try {
     const settings = await getCollection('settings').findOne({ id: 'main' });
 
