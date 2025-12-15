@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { Calendar, Clock, ArrowRight, X, Share2, Globe, Layers } from 'lucide-react';
+import { Button } from './ui/button';
+import { toast } from 'sonner';
 import { storage } from '../utils/storage';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -170,87 +173,129 @@ export function Posts() {
         </div>
       </section>
 
-      {/* Full Screen Post Details Modal */}
-      {selectedPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div
-            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
-            onClick={handleClosePost}
-          />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-4xl max-h-[90vh] bg-card border border-border rounded-xl shadow-2xl overflow-hidden flex flex-col"
-          >
-            {/* Header / Image - Parallax style header */}
-            <div className="relative h-48 sm:h-64 md:h-80 shrink-0 overflow-hidden bg-muted">
-              {selectedPost.thumbnail ? (
-                <ImageWithFallback
-                  src={selectedPost.thumbnail}
-                  alt={selectedPost.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                  <h1 className="text-4xl font-bold text-primary/20">Article</h1>
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
-              <button
-                onClick={handleClosePost}
-                className="absolute top-4 right-4 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors z-10"
+      {/* Full Screen Post Details Modal - Matches Project Style */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedPost && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-background overscroll-none"
+              style={{ zIndex: 100 }}
+              onClick={handleClosePost}
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                className="w-full h-full flex flex-col md:flex-row relative"
+                onClick={(e) => e.stopPropagation()}
               >
-                <ArrowRight className="w-6 h-6 rotate-180" /> {/* Using ArrowRight rotated as back icon since X is not imported yet */}
-              </button>
-            </div>
+                {/* Close Button */}
+                <button
+                  onClick={handleClosePost}
+                  className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
 
-            {/* Content Container */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-10">
-              <div className="max-w-3xl mx-auto">
-                {/* Meta Header */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {formatDate(selectedPost.createdAt)}
-                  </span>
-                  {selectedPost.readTime && (
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {selectedPost.readTime} min read
-                    </span>
-                  )}
-                </div>
+                {/* Image Section (Left/Top) - Matches Project Gallery */}
+                <div className="w-full md:w-2/3 bg-black relative flex items-center justify-center overflow-hidden group">
+                  <div className="absolute inset-0 bg-neutral-900/50" />
 
-                <h2 className="text-3xl sm:text-4xl font-bold mb-8 leading-tight">
-                  {selectedPost.title}
-                </h2>
-
-                <div className="prose prose-invert max-w-none text-muted-foreground">
-                  <p className="whitespace-pre-wrap leading-relaxed text-lg">
-                    {selectedPost.content}
-                  </p>
-                </div>
-
-                {/* Tags Footer */}
-                {selectedPost.tags && selectedPost.tags.length > 0 && (
-                  <div className="mt-12 pt-8 border-t border-border">
-                    <h4 className="text-sm uppercase tracking-wider text-muted-foreground mb-4 font-semibold">
-                      Related Topics
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedPost.tags.map((tag: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-secondary hover:bg-secondary/80 rounded-full text-sm transition-colors cursor-default">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
+                  {/* Main Image */}
+                  <div className="relative w-full h-[40vh] md:h-full flex items-center justify-center p-4 md:p-12">
+                    {selectedPost.thumbnail ? (
+                      <ImageWithFallback
+                        src={selectedPost.thumbnail}
+                        alt={selectedPost.title}
+                        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                        <h1 className="text-4xl font-bold text-primary/20">Article</h1>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        </div>
+                </div>
+
+                {/* Details Section (Right/Bottom) */}
+                <div className="w-full md:w-1/3 p-8 flex flex-col bg-card overflow-y-auto custom-scrollbar h-full md:border-l border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm uppercase tracking-widest text-primary font-bold">
+                      From My Desk
+                    </span>
+                  </div>
+
+                  <h2 className="text-3xl md:text-4xl font-bold mb-6 leading-tight">
+                    {selectedPost.title}
+                  </h2>
+
+                  {/* Meta Header */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6 pb-6 border-b border-border">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {formatDate(selectedPost.createdAt)}
+                    </span>
+                    {selectedPost.readTime && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        {selectedPost.readTime} min read
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-8 flex-1">
+                    <div>
+                      <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
+                        <Globe className="w-4 h-4" /> Content
+                      </h3>
+                      <div className="prose prose-invert max-w-none text-muted-foreground">
+                        <p className="whitespace-pre-wrap leading-relaxed">
+                          {selectedPost.content}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Tags */}
+                    {selectedPost.tags && selectedPost.tags.length > 0 && (
+                      <div>
+                        <h3 className="text-sm uppercase tracking-wider text-muted-foreground mb-3 font-semibold flex items-center gap-2">
+                          <Layers className="w-4 h-4" /> Related Topics
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPost.tags.map((tag: string, i: number) => (
+                            <span key={i} className="px-3 py-1 bg-secondary hover:bg-secondary/80 rounded-lg text-sm transition-colors border border-transparent hover:border-primary/20">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-8 mt-8 border-t border-border flex flex-col gap-3">
+                    <Button
+                      size="lg"
+                      variant="secondary"
+                      className="w-full text-base"
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success('Article link copied to clipboard!');
+                      }}
+                    >
+                      <Share2 className="w-4 h-4 mr-2" /> Share Article
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.getElementById('portal-root') || document.body
       )}
     </>
   );

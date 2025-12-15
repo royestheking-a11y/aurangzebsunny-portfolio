@@ -108,7 +108,7 @@ export function Certificates() {
           </DialogTitle>
           {selectedCert && (
             <div>
-              <img
+              <ImageWithFallback
                 src={selectedCert.imageUrl}
                 alt={selectedCert.title}
                 className="w-full h-auto rounded-lg"
