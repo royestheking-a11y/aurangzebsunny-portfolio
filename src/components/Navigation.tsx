@@ -57,30 +57,42 @@ export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
     setIsMobileMenuOpen(false);
   };
 
-  const handleResumeDownload = () => {
-    if (resumeUrl) {
-      if (resumeUrl.includes('cloudinary.com')) {
-        // Force download for Cloudinary URLs
-        // Check if there are already transformations/flags
-        // Typical structure: .../upload/v12345/folder/file.pdf
-        // We want: .../upload/fl_attachment/v12345/folder/file.pdf
-        const parts = resumeUrl.split('/upload/');
-        if (parts.length === 2) {
-          const downloadUrl = `${parts[0]}/upload/fl_attachment/${parts[1]}`;
-          // Use specific file name if possible, or default
-          const link = document.createElement('a');
-          link.href = downloadUrl;
-          link.setAttribute('download', 'Resume.pdf'); // Hint to browser
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          return;
-        }
-      }
-      // Fallback for non-cloudinary or unparsable URLs
-      window.open(resumeUrl, '_blank');
-    } else {
+  const handleResumeDownload = async () => {
+    if (!resumeUrl) {
       alert('Resume not available. Please contact the admin.');
+      return;
+    }
+
+    try {
+      // Direct fetch to bypass Cloudinary transformation restrictions (Avoids 401 on fl_attachment)
+      const response = await fetch(resumeUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Extract filename from URL or default to Resume.pdf
+      let fileName = 'Resume.pdf';
+      try {
+        const urlParts = resumeUrl.split('/');
+        const lastPart = urlParts[urlParts.length - 1];
+        // Remove known cloudiary version prefixes if needed, but usually filename is at end
+        if (lastPart) fileName = decodeURIComponent(lastPart);
+      } catch (e) {
+        console.warn('Could not extract filename', e);
+      }
+
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed, falling back to new tab:', error);
+      // Fallback: Open in new tab if programmatic download fails (e.g. CORS)
+      window.open(resumeUrl, '_blank');
     }
   };
 
