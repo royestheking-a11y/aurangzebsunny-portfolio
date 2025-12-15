@@ -59,6 +59,25 @@ export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
 
   const handleResumeDownload = () => {
     if (resumeUrl) {
+      if (resumeUrl.includes('cloudinary.com')) {
+        // Force download for Cloudinary URLs
+        // Check if there are already transformations/flags
+        // Typical structure: .../upload/v12345/folder/file.pdf
+        // We want: .../upload/fl_attachment/v12345/folder/file.pdf
+        const parts = resumeUrl.split('/upload/');
+        if (parts.length === 2) {
+          const downloadUrl = `${parts[0]}/upload/fl_attachment/${parts[1]}`;
+          // Use specific file name if possible, or default
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.setAttribute('download', 'Resume.pdf'); // Hint to browser
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          return;
+        }
+      }
+      // Fallback for non-cloudinary or unparsable URLs
       window.open(resumeUrl, '_blank');
     } else {
       alert('Resume not available. Please contact the admin.');

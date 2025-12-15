@@ -2191,8 +2191,8 @@ function SettingsView() {
             <Label>Resume File</Label>
             <FileUpload
               value={settings.resumeUrl || ''}
-              onChange={(url: string) => setSettings({ ...settings, resumeUrl: url })}
-              uploadEndpoint="/api/upload/resume"
+              onChange={(url) => setSettings({ ...settings, resumeUrl: url })}
+              accept=".pdf,.doc,.docx"
             />
           </div>
           <div>
