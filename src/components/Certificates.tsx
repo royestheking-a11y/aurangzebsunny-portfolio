@@ -57,7 +57,7 @@ export function Certificates() {
               >
                 <div className="bg-card rounded-2xl overflow-hidden hover-glow transition-all border border-border">
                   {/* Certificate Image */}
-                  <div className="relative aspect-[4/3] overflow-hidden bg-muted p-2">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                     {cert.imageUrl ? (
                       <ImageWithFallback
                         src={cert.imageUrl}
@@ -71,7 +71,7 @@ export function Certificates() {
                     )}
 
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                    <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                       <p className="text-white text-sm">Click to view details</p>
                     </div>
                   </div>
