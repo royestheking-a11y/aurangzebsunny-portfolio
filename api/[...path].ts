@@ -510,6 +510,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json({ success: true, data: message });
     }
 
+    // ==================== RESUME DOWNLOAD ====================
+    if (resource === 'download-resume' && method === 'GET') {
+      const settings = await db.collection('settings').findOne({ id: 'main' });
+
+      if (!settings || !settings.resumeFile) {
+        console.log('Resume not found in settings:', !!settings);
+        return res.status(404).send('Resume not found in database');
+      }
+
+      const { data, contentType, fileName } = settings.resumeFile;
+
+      if (!data) {
+        console.log('Resume file data missing');
+        return res.status(404).send('File data missing');
+      }
+
+      // Set headers
+      res.setHeader('Content-Type', contentType || 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="${fileName || 'resume.pdf'}"`);
+
+      // Handle various binary data formats from MongoDB
+      let fileBuffer;
+      if (Buffer.isBuffer(data)) {
+        fileBuffer = data;
+      } else if (data.buffer && Buffer.isBuffer(data.buffer)) {
+        fileBuffer = data.buffer;
+      } else if (data.buffer) {
+        fileBuffer = Buffer.from(data.buffer);
+      } else {
+        try {
+          // Handle BSON Binary type
+          fileBuffer = Buffer.from(data.toString('binary'), 'binary');
+        } catch (e) {
+          console.error('Buffer conversion failed:', e);
+          fileBuffer = data; // Last resort
+        }
+      }
+
+      return res.send(fileBuffer);
+    }
+
     // 404 for unknown routes
     console.log('404 - Route not found:', { resource, id, pathParts, url: req.url, query: req.query });
     res.status(404).json({ error: 'Not found', path: pathParts, resource });
