@@ -30,6 +30,7 @@ import { Textarea } from '../ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 import { toast } from 'sonner';
 import { ImageUpload } from './ImageUpload';
+import { FileUpload } from './FileUpload';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -221,13 +222,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <LiveClock />
           </div>
 
-          {/* Desktop Header with Clock */}
+          {/* Desktop Header with Clock - Title Removed */}
           <div className="hidden md:flex items-center justify-between mb-2">
-            <div>
-              <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                Admin Portal
-              </h2>
-            </div>
+            <div /> {/* Spacer to push clock to right */}
             <LiveClock />
           </div>
 
@@ -2191,11 +2188,10 @@ function SettingsView() {
             />
           </div>
           <div>
-            <Label>Resume URL</Label>
-            <Input
+            <Label>Resume File</Label>
+            <FileUpload
               value={settings.resumeUrl || ''}
-              onChange={(e) => setSettings({ ...settings, resumeUrl: e.target.value })}
-              placeholder="https://..."
+              onChange={(url: string) => setSettings({ ...settings, resumeUrl: url })}
             />
           </div>
           <div>
