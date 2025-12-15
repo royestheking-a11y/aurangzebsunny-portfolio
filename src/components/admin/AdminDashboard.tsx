@@ -2192,6 +2192,7 @@ function SettingsView() {
             <FileUpload
               value={settings.resumeUrl || ''}
               onChange={(url: string) => setSettings({ ...settings, resumeUrl: url })}
+              uploadEndpoint="/api/upload/resume"
             />
           </div>
           <div>

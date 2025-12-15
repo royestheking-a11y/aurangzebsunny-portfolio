@@ -1,3 +1,5 @@
+import { Binary } from 'mongodb';
+import multer from 'multer';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { connectToDatabase, getDatabase } from './config/db';
@@ -605,6 +607,87 @@ app.post('/api/newsletter', async (req: Request, res: Response) => {
     res.json(subscription);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ==================== RESUME UPLOAD (MongoDB) ====================
+
+// Configure multer for memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+});
+
+// Upload Resume
+app.post('/api/upload/resume', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { buffer, mimetype, originalname } = req.file;
+
+    // Convert buffer to binary for MongoDB
+    const binaryFile = new Binary(buffer);
+
+    // Update settings with the file data
+    await getCollection('settings').updateOne(
+      { id: 'main' },
+      {
+        $set: {
+          resumeFile: {
+            data: binaryFile,
+            contentType: mimetype,
+            fileName: originalname,
+            updatedAt: new Date().toISOString(),
+          },
+          // Also set the regular resumeUrl to point to our download endpoint
+          resumeUrl: '/api/resume/download',
+        }
+      },
+      { upsert: true }
+    );
+
+    res.json({
+      success: true,
+      url: '/api/resume/download',
+      message: 'Resume uploaded successfully'
+    });
+  } catch (error: any) {
+    console.error('Error uploading resume:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Download Resume
+app.get('/api/resume/download', async (req: Request, res: Response) => {
+  try {
+    const settings = await getCollection('settings').findOne({ id: 'main' });
+
+    if (!settings || !settings.resumeFile) {
+      return res.status(404).send('Resume not found');
+    }
+
+    const { data, contentType, fileName } = settings.resumeFile;
+
+    // Set headers
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+
+    // Send the buffer (accessed via data.buffer if it's a Binary object, or direct property)
+    // MongoDB driver returns Binary class
+    if (data && data.buffer) {
+      res.send(data.buffer);
+    } else {
+      // Fallback if stored differently
+      res.send(data);
+    }
+
+  } catch (error: any) {
+    console.error('Error downloading resume:', error);
+    res.status(500).send('Error downloading resume');
   }
 });
 

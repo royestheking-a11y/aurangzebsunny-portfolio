@@ -8,6 +8,7 @@ interface FileUploadProps {
     onChange: (url: string) => void;
     accept?: string;
     maxSizeMB?: number;
+    uploadEndpoint?: string; // Optional custom upload endpoint
 }
 
 export function FileUpload({
@@ -15,6 +16,7 @@ export function FileUpload({
     onChange,
     accept = ".pdf,.pptx,.doc,.docx",
     maxSizeMB = 10,
+    uploadEndpoint,
 }: FileUploadProps) {
     const [loading, setLoading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,32 +34,54 @@ export function FileUpload({
         setLoading(true);
 
         try {
-            // Upload to Cloudinary
-            const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "do5jdaaef";
-            const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "AurangPortfolio";
+            if (uploadEndpoint) {
+                // Use custom upload endpoint (MongoDB)
+                const formData = new FormData();
+                formData.append('file', file);
 
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', uploadPreset);
-            formData.append('folder', 'portfolio_documents');
-            // resource_type 'auto' lets Cloudinary decide if it's raw (pdf/ppt) or image
-            formData.append('resource_type', 'auto');
+                // Use api base URL utility if available, or relative path if configured in proxy
+                // Assuming Vite proxy or same-origin handled correctly
+                const response = await fetch(uploadEndpoint, {
+                    method: 'POST',
+                    body: formData,
+                });
 
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
-                method: 'POST',
-                body: formData
-            });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Upload failed');
+                }
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Upload failed');
+                const data = await response.json();
+                onChange(data.url);
+                toast.success('File uploaded successfully to server!');
+            } else {
+                // Upload to Cloudinary (Legacy/Default)
+                const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "do5jdaaef";
+                const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "AurangPortfolio";
+
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', uploadPreset);
+                formData.append('folder', 'portfolio_documents');
+                // resource_type 'auto' lets Cloudinary decide if it's raw (pdf/ppt) or image
+                formData.append('resource_type', 'auto');
+
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error?.message || 'Upload failed');
+                }
+
+                const data = await response.json();
+                const fileUrl = data.secure_url;
+
+                onChange(fileUrl);
+                toast.success('File uploaded successfully!');
             }
-
-            const data = await response.json();
-            const fileUrl = data.secure_url;
-
-            onChange(fileUrl);
-            toast.success('File uploaded successfully!');
         } catch (error: any) {
             console.error('Upload Error:', error);
             toast.error(`File upload failed: ${error.message}`);
