@@ -7,10 +7,6 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/api/download-resume",
-      "destination": "/api/download-resume"
-    },
-    {
       "source": "/api/(.*)",
       "destination": "/api/[...path]"
     },

@@ -528,7 +528,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Set headers
       res.setHeader('Content-Type', contentType || 'application/pdf');
-      res.setHeader('Content-Disposition', `inline; filename="${fileName || 'resume.pdf'}"`);
+      // Changed to 'attachment' to force download as requested by user
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName || 'resume.pdf'}"`);
 
       // Handle various binary data formats from MongoDB
       let fileBuffer;
@@ -548,6 +549,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
+      console.log('Serving resume download:', { fileName, contentType, size: fileBuffer.length });
       return res.send(fileBuffer);
     }
 
