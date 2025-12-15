@@ -76,7 +76,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                         updatedAt: new Date().toISOString(),
                     },
                     // Set URL to download endpoint
-                    resumeUrl: '/api/resume/download',
+                    resumeUrl: '/api/download-resume',
                 }
             },
             { upsert: true }
@@ -84,7 +84,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return res.status(200).json({
             success: true,
-            url: '/api/resume/download',
+            url: '/api/download-resume',
             message: 'Resume uploaded successfully'
         });
     } catch (error: any) {
