@@ -59,16 +59,12 @@ export function Navigation({ darkMode, toggleDarkMode }: NavigationProps) {
 
   const handleResumeDownload = () => {
     if (resumeUrl) {
-      // Check if it's a Cloudinary URL and append attachment flag for instant download
-      const downloadUrl = resumeUrl.includes('cloudinary') && !resumeUrl.includes('fl_attachment')
-        ? resumeUrl.replace('/upload/', '/upload/fl_attachment/')
-        : resumeUrl;
-
-      window.open(downloadUrl, '_blank');
+      window.open(resumeUrl, '_blank');
     } else {
       alert('Resume not available. Please contact the admin.');
     }
   };
+
 
   return (
     <nav
