@@ -16,7 +16,10 @@ export function Certificates() {
   const loadCertificates = async () => {
     try {
       const allCertificates = await storage.getCertificates();
-      setCertificates(allCertificates);
+      const sorted = allCertificates.sort((a: any, b: any) =>
+        new Date(b.createdAt || b.date || 0).getTime() - new Date(a.createdAt || a.date || 0).getTime()
+      );
+      setCertificates(sorted);
     } catch (error) {
       console.error('Error loading certificates:', error);
     }

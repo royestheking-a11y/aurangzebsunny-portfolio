@@ -16,7 +16,10 @@ export function Projects() {
   useEffect(() => {
     const loadProjects = async () => {
       const data = await storage.getProjects();
-      setProjects(data);
+      const sorted = data.sort((a: any, b: any) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+      setProjects(sorted);
     };
     loadProjects();
   }, []);

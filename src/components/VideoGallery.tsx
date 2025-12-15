@@ -15,7 +15,10 @@ export function VideoGallery() {
   const loadVideos = async () => {
     try {
       const allVideos = await storage.getVideos();
-      setVideos(allVideos);
+      const sorted = allVideos.sort((a: any, b: any) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+      setVideos(sorted);
     } catch (error) {
       console.error('Error loading videos:', error);
     }
