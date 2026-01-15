@@ -1,7 +1,9 @@
 
   # Personal Portfolio Website
 
-  This is a code bundle for Personal Portfolio Website. The original project is available at https://www.figma.com/design/eFFfpYUtsaaG3atP7gos64/Personal-Portfolio-Website.
+I'm a passionate UI/UX Designer, Full-Stack Developer, and Digital Marketing Specialist. I combine creative design, technical expertise, and strategic thinking to build experiences that inspire and perform.
+
+aurangzebsunnyy.vercel.app/
 
   ## Running the code
 
